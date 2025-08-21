@@ -15,7 +15,7 @@ if (Test-Path "publish") {
 Write-Host "[INFO] This may take several minutes due to single-file compilation..." -ForegroundColor Yellow
 Write-Host "[INFO] Building self-contained executable (no .NET Runtime required)..." -ForegroundColor Green
 
-$result = dotnet publish --configuration Release --output publish --verbosity minimal
+$result = dotnet publish --configuration Release --output publish --self-contained true --runtime win-x64 --verbosity minimal
 
 # Check if build was successful by checking if exe exists
 if (-not (Test-Path "publish\TarkovClient.exe")) {

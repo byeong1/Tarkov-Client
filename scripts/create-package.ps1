@@ -18,42 +18,47 @@ if ($env:GITHUB_REF -and $env:GITHUB_REF -match "refs/tags/v(.+)") {
     }
 }
 
-$releaseDir = "release"
 $zipName = "TarkovClient-$version.zip"
+$tempDir = "temp-package"
+$packageDir = "Tarkov Client $version"
 
 Write-Host "[INFO] Creating package for $version..." -ForegroundColor Green
 
-# publish 폴더가 없으면 먼저 publish 빌드 실행
+# 필수 파일 존재 확인
 if (-not (Test-Path "publish\TarkovClient.exe")) {
-    Write-Host "[INFO] TarkovClient.exe not found. Running publish build first..." -ForegroundColor Yellow
-    Write-Host "[INFO] This may take several minutes due to single-file compilation..." -ForegroundColor Cyan
-    & "scripts\build-publish.ps1"
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "[ERROR] Publish build failed!" -ForegroundColor Red
-        exit $LASTEXITCODE
-    }
+    Write-Host "[ERROR] TarkovClient.exe not found!" -ForegroundColor Red
+    Write-Host "[INFO] Please run 'scripts\build-publish.ps1' first to build the executable." -ForegroundColor Yellow
+    exit 1
 }
 
-# 릴리스 폴더 생성
-if (Test-Path $releaseDir) {
-    Write-Host "[INFO] Cleaning existing release folder..." -ForegroundColor Yellow
-    Remove-Item -Path $releaseDir -Recurse -Force
+# 모든 txt 파일 찾기
+$txtFiles = Get-ChildItem -Path "." -Filter "*.txt"
+if (-not $txtFiles) {
+    Write-Host "[WARNING] No txt files found in root directory." -ForegroundColor Yellow
 }
-New-Item -Path $releaseDir -ItemType Directory | Out-Null
+Write-Host "[INFO] Found $($txtFiles.Count) txt file(s)" -ForegroundColor Green
 
-# 포터블 버전 복사
-Write-Host "[INFO] Adding portable version..." -ForegroundColor Green
-Copy-Item -Path "publish\TarkovClient.exe" -Destination "$releaseDir\TarkovClient.exe"
+# 임시 패키지 폴더 생성
+if (Test-Path $tempDir) {
+    Write-Host "[INFO] Cleaning temporary package folder..." -ForegroundColor Yellow
+    Remove-Item -Path $tempDir -Recurse -Force
+}
+New-Item -Path $tempDir -ItemType Directory | Out-Null
+New-Item -Path "$tempDir\$packageDir" -ItemType Directory | Out-Null
 
-# 사용법 파일 복사 (사용자 친화적)
-if (Test-Path "사용법.txt") {
-    Write-Host "[INFO] Adding 사용법.txt..." -ForegroundColor Green
-    Copy-Item -Path "사용법.txt" -Destination "$releaseDir\사용법.txt"
+# TarkovClient.exe 복사
+Write-Host "[INFO] Adding TarkovClient.exe..." -ForegroundColor Green
+Copy-Item -Path "publish\TarkovClient.exe" -Destination "$tempDir\$packageDir\TarkovClient.exe"
+
+# 모든 txt 파일 복사
+foreach ($txtFile in $txtFiles) {
+    Write-Host "[INFO] Adding $($txtFile.Name)..." -ForegroundColor Green
+    Copy-Item -Path $txtFile.FullName -Destination "$tempDir\$packageDir\$($txtFile.Name)"
 }
 
 # ZIP 파일 생성
 Write-Host "[INFO] Creating ZIP package..." -ForegroundColor Green
-Compress-Archive -Path "$releaseDir\*" -DestinationPath $zipName -Force
+Compress-Archive -Path "$tempDir\*" -DestinationPath $zipName -Force
 
 # 파일 크기 확인
 $zipInfo = Get-Item $zipName
@@ -62,10 +67,13 @@ $zipSizeMB = [math]::Round($zipInfo.Length / 1MB, 2)
 Write-Host "[SUCCESS] Package created successfully!" -ForegroundColor Green
 Write-Host "[INFO] ZIP File: $zipName ($zipSizeMB MB)" -ForegroundColor Yellow
 Write-Host "[INFO] Contents:" -ForegroundColor Yellow
-Get-ChildItem $releaseDir | ForEach-Object {
+Get-ChildItem "$tempDir\$packageDir" | ForEach-Object {
     $fileSizeMB = [math]::Round($_.Length / 1MB, 2)
     Write-Host "  - $($_.Name) ($fileSizeMB MB)" -ForegroundColor Gray
 }
+
+# 임시 폴더 정리
+Remove-Item -Path $tempDir -Recurse -Force
 
 Write-Host ""
 Write-Host "[INFO] Package ready for GitHub Release upload!" -ForegroundColor Green
