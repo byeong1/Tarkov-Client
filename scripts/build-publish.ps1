@@ -20,8 +20,6 @@ $result = dotnet publish --configuration Release --output publish --self-contain
 # Check if build was successful by checking if exe exists
 if (-not (Test-Path "publish\TarkovClient.exe")) {
     Write-Host "[ERROR] Publish failed! TarkovClient.exe was not created." -ForegroundColor Red
-    Write-Host "Press any key to continue..."
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     exit 1
 }
 
