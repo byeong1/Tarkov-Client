@@ -134,3 +134,4 @@ jobs:
             TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
           draft: false
           prerelease: false
+
