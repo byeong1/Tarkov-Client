@@ -3,193 +3,193 @@ name: Release Build and Deploy
 on:
   push:
     tags:
-      - 'v*.*.*'  # v0.0.1, v1.2.3 등의 태그가 푸시될 때 실행
+      - "v*.*.*" # v0.0.1, v1.2.3 등의 태그가 푸시될 때 실행
     branches:
-      - main  # main 브랜치에서만 실행
-  workflow_dispatch:  # 수동 실행도 가능
+      - main # main 브랜치에서만 실행
+  workflow_dispatch: # 수동 실행도 가능
 
 permissions:
-  contents: write  # Release 생성 권한 명시적 부여
+  contents: write # Release 생성 권한 명시적 부여
 
 jobs:
   release:
     name: Create Release
     runs-on: windows-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-        
-    - name: Extract version from tag
-      id: get_version
-      shell: pwsh
-      run: |
-        if ("${{ github.ref }}" -match "refs/tags/v(.+)") {
-          $version = $matches[1]
-          echo "version=$version" >> $env:GITHUB_OUTPUT
-          echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
-        } else {
-          $version = "0.1.0"
-          echo "version=$version" >> $env:GITHUB_OUTPUT  
-          echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
-        }
-        echo "Extracted version: $version"
-        
-    - name: Update project version
-      shell: pwsh
-      run: |
-        $version = "${{ steps.get_version.outputs.version }}"
-        $csprojPath = "TarkovClient.csproj"
-        
-        # .csproj 파일의 버전 업데이트
-        $content = Get-Content $csprojPath -Raw
-        $content = $content -replace '<Version>[\d\.]+</Version>', "<Version>$version</Version>"
-        $content = $content -replace '<FileVersion>[\d\.]+</FileVersion>', "<FileVersion>$version</FileVersion>"
-        $content = $content -replace '<AssemblyVersion>[\d\.]+</AssemblyVersion>', "<AssemblyVersion>$version</AssemblyVersion>"
-        Set-Content -Path $csprojPath -Value $content -Encoding UTF8
-        
-        # 사용법.txt 파일의 버전 업데이트
-        if (Test-Path "사용법.txt") {
-          $usageContent = Get-Content "사용법.txt" -Raw -Encoding UTF8
-          $usageContent = $usageContent -replace 'Tarkov Client v[\d\.]+', "Tarkov Client v$version"
-          Set-Content -Path "사용법.txt" -Value $usageContent -Encoding UTF8
-        }
-        
-        echo "Updated version to: $version"
-        
-    - name: Set PowerShell execution policy
-      shell: pwsh
-      run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-      
-    - name: Build publish version
-      shell: pwsh
-      run: |
-        Write-Host "Building Self-Contained executable..." -ForegroundColor Green
-        & "scripts\build-publish.ps1"
-        if ($LASTEXITCODE -ne 0) {
-          Write-Host "Build failed!" -ForegroundColor Red
-          exit $LASTEXITCODE
-        }
-        
-    - name: Create package
-      shell: pwsh
-      run: |
-        Write-Host "Creating release package..." -ForegroundColor Green
-        & "scripts\create-package.ps1"
-        if ($LASTEXITCODE -ne 0) {
-          Write-Host "Package creation failed!" -ForegroundColor Red
-          exit $LASTEXITCODE
-        }
-        
-    - name: Build installer (optional)
-      shell: pwsh
-      run: |
-        # Inno Setup이 설치되어 있으면 설치 프로그램도 생성
-        if (Get-Command "iscc" -ErrorAction SilentlyContinue) {
-          Write-Host "Building Windows installer..." -ForegroundColor Green
-          & "setup\build-installer.ps1"
-        } else {
-          Write-Host "Inno Setup not found. Skipping installer build." -ForegroundColor Yellow
-        }
-      continue-on-error: true
-      
-    - name: Check for installer file
-      id: check_installer
-      shell: pwsh
-      run: |
-        if (Test-Path "setup/Output/TarkovClientSetup.exe") {
-          echo "installer_exists=true" >> $env:GITHUB_OUTPUT
-          Write-Host "Installer found and will be included in release" -ForegroundColor Green
-        } else {
-          echo "installer_exists=false" >> $env:GITHUB_OUTPUT
-          Write-Host "Installer not found, skipping" -ForegroundColor Yellow
-        }
-        
-    - name: Create Release with installer
-      if: steps.check_installer.outputs.installer_exists == 'true'
-      uses: softprops/action-gh-release@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: ${{ steps.get_version.outputs.tag_name }}
-        name: 'Tarkov Client ${{ steps.get_version.outputs.version }}'
-        files: |
-          TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
-          setup/Output/TarkovClientSetup.exe
-        body: |
-          ## 🎯 Tarkov Client ${{ steps.get_version.outputs.version }}
-          
-          > Tarkov Market Pilot을 위한 전용 데스크톱 애플리케이션
-          
-          ### 📥 다운로드
-          
-          **포터블 버전 (권장)**:
-          - `TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip` - 압축 해제 후 바로 실행
-          - 포함: TarkovClient.exe + 사용법.txt (한글 가이드)
-          
-          **설치 프로그램**:
-          - `TarkovClientSetup.exe` - 자동 설치 및 바로가기 생성
-          
-          ### ⚡ 주요 기능
-          - ✅ Self-Contained 배포 - .NET Runtime 설치 불필요
-          - ✅ 실시간 맵 감지 - 게임 로그 기반 자동 감지
-          - ✅ 스크린샷 추적 - F12 기반 위치 업데이트
-          - ✅ 자동 세션 정리 - 게임 종료 시 로그 정리
-          
-          ### 🖥️ 시스템 요구사항
-          - Windows 10/11 (64비트)
-          - WebView2 Runtime (Windows 업데이트로 설치)
-          
-          ### ⚠️ Windows Defender 경고
-          처음 실행 시 보안 경고가 나타날 수 있습니다.
-          "추가 정보" → "실행" 클릭으로 해결하세요.
-          
-          ### 🔗 문의
-          - 카카오톡: https://open.kakao.com/o/sEeL0LNh
-          - GitHub Issues: 기술적 문의 및 버그 리포트
-        draft: false
-        prerelease: false
-        
-    - name: Create Release without installer
-      if: steps.check_installer.outputs.installer_exists != 'true'
-      uses: softprops/action-gh-release@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: ${{ steps.get_version.outputs.tag_name }}
-        name: 'Tarkov Client ${{ steps.get_version.outputs.version }}'
-        files: |
-          TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
-        body: |
-          ## 🎯 Tarkov Client ${{ steps.get_version.outputs.version }}
-          
-          > Tarkov Market Pilot을 위한 전용 데스크톱 애플리케이션
-          
-          ### 📥 다운로드
-          
-          **포터블 버전 (권장)**:
-          - `TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip` - 압축 해제 후 바로 실행
-          - 포함: TarkovClient.exe + 사용법.txt (한글 가이드)
-          
-          ### ⚡ 주요 기능
-          - ✅ Self-Contained 배포 - .NET Runtime 설치 불필요
-          - ✅ 실시간 맵 감지 - 게임 로그 기반 자동 감지
-          - ✅ 스크린샷 추적 - F12 기반 위치 업데이트
-          - ✅ 자동 세션 정리 - 게임 종료 시 로그 정리
-          
-          ### 🖥️ 시스템 요구사항
-          - Windows 10/11 (64비트)
-          - WebView2 Runtime (Windows 업데이트로 설치)
-          
-          ### ⚠️ Windows Defender 경고
-          처음 실행 시 보안 경고가 나타날 수 있습니다.
-          "추가 정보" → "실행" 클릭으로 해결하세요.
-          
-          ### 🔗 문의
-          - 카카오톡: https://open.kakao.com/o/sEeL0LNh
-          - GitHub Issues: 기술적 문의 및 버그 리포트
-        draft: false
-        prerelease: false
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Extract version from tag
+        id: get_version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref }}" -match "refs/tags/v(.+)") {
+            $version = $matches[1]
+            echo "version=$version" >> $env:GITHUB_OUTPUT
+            echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
+          } else {
+            $version = "0.1.1"
+            echo "version=$version" >> $env:GITHUB_OUTPUT  
+            echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
+          }
+          echo "Extracted version: $version"
+
+      - name: Update project version
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.version }}"
+          $csprojPath = "TarkovClient.csproj"
+
+          # .csproj 파일의 버전 업데이트
+          $content = Get-Content $csprojPath -Raw
+          $content = $content -replace '<Version>[\d\.]+</Version>', "<Version>$version</Version>"
+          $content = $content -replace '<FileVersion>[\d\.]+</FileVersion>', "<FileVersion>$version</FileVersion>"
+          $content = $content -replace '<AssemblyVersion>[\d\.]+</AssemblyVersion>', "<AssemblyVersion>$version</AssemblyVersion>"
+          Set-Content -Path $csprojPath -Value $content -Encoding UTF8
+
+          # 사용법.txt 파일의 버전 업데이트
+          if (Test-Path "사용법.txt") {
+            $usageContent = Get-Content "사용법.txt" -Raw -Encoding UTF8
+            $usageContent = $usageContent -replace 'Tarkov Client v[\d\.]+', "Tarkov Client v$version"
+            Set-Content -Path "사용법.txt" -Value $usageContent -Encoding UTF8
+          }
+
+          echo "Updated version to: $version"
+
+      - name: Set PowerShell execution policy
+        shell: pwsh
+        run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+
+      - name: Build publish version
+        shell: pwsh
+        run: |
+          Write-Host "Building Self-Contained executable..." -ForegroundColor Green
+          & "scripts\build-publish.ps1"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Build failed!" -ForegroundColor Red
+            exit $LASTEXITCODE
+          }
+
+      - name: Create package
+        shell: pwsh
+        run: |
+          Write-Host "Creating release package..." -ForegroundColor Green
+          & "scripts\create-package.ps1"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Package creation failed!" -ForegroundColor Red
+            exit $LASTEXITCODE
+          }
+
+      - name: Build installer (optional)
+        shell: pwsh
+        run: |
+          # Inno Setup이 설치되어 있으면 설치 프로그램도 생성
+          if (Get-Command "iscc" -ErrorAction SilentlyContinue) {
+            Write-Host "Building Windows installer..." -ForegroundColor Green
+            & "setup\build-installer.ps1"
+          } else {
+            Write-Host "Inno Setup not found. Skipping installer build." -ForegroundColor Yellow
+          }
+        continue-on-error: true
+
+      - name: Check for installer file
+        id: check_installer
+        shell: pwsh
+        run: |
+          if (Test-Path "setup/Output/TarkovClientSetup.exe") {
+            echo "installer_exists=true" >> $env:GITHUB_OUTPUT
+            Write-Host "Installer found and will be included in release" -ForegroundColor Green
+          } else {
+            echo "installer_exists=false" >> $env:GITHUB_OUTPUT
+            Write-Host "Installer not found, skipping" -ForegroundColor Yellow
+          }
+
+      - name: Create Release with installer
+        if: steps.check_installer.outputs.installer_exists == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.get_version.outputs.tag_name }}
+          name: "Tarkov Client ${{ steps.get_version.outputs.version }}"
+          files: |
+            TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
+            setup/Output/TarkovClientSetup.exe
+          body: |
+            ## 🎯 Tarkov Client ${{ steps.get_version.outputs.version }}
+
+            > Tarkov Market Pilot을 위한 전용 데스크톱 애플리케이션
+
+            ### 📥 다운로드
+
+            **포터블 버전 (권장)**:
+            - `TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip` - 압축 해제 후 바로 실행
+            - 포함: TarkovClient.exe + 사용법.txt (한글 가이드)
+
+            **설치 프로그램**:
+            - `TarkovClientSetup.exe` - 자동 설치 및 바로가기 생성
+
+            ### ⚡ 주요 기능
+            - ✅ Self-Contained 배포 - .NET Runtime 설치 불필요
+            - ✅ 실시간 맵 감지 - 게임 로그 기반 자동 감지
+            - ✅ 스크린샷 추적 - F12 기반 위치 업데이트
+            - ✅ 자동 세션 정리 - 게임 종료 시 로그 정리
+
+            ### 🖥️ 시스템 요구사항
+            - Windows 10/11 (64비트)
+            - WebView2 Runtime (Windows 업데이트로 설치)
+
+            ### ⚠️ Windows Defender 경고
+            처음 실행 시 보안 경고가 나타날 수 있습니다.
+            "추가 정보" → "실행" 클릭으로 해결하세요.
+
+            ### 🔗 문의
+            - 카카오톡: https://open.kakao.com/o/sEeL0LNh
+            - GitHub Issues: 기술적 문의 및 버그 리포트
+          draft: false
+          prerelease: false
+
+      - name: Create Release without installer
+        if: steps.check_installer.outputs.installer_exists != 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.get_version.outputs.tag_name }}
+          name: "Tarkov Client ${{ steps.get_version.outputs.version }}"
+          files: |
+            TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
+          body: |
+            ## 🎯 Tarkov Client ${{ steps.get_version.outputs.version }}
+
+            > Tarkov Market Pilot을 위한 전용 데스크톱 애플리케이션
+
+            ### 📥 다운로드
+
+            **포터블 버전 (권장)**:
+            - `TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip` - 압축 해제 후 바로 실행
+            - 포함: TarkovClient.exe + 사용법.txt (한글 가이드)
+
+            ### ⚡ 주요 기능
+            - ✅ Self-Contained 배포 - .NET Runtime 설치 불필요
+            - ✅ 실시간 맵 감지 - 게임 로그 기반 자동 감지
+            - ✅ 스크린샷 추적 - F12 기반 위치 업데이트
+            - ✅ 자동 세션 정리 - 게임 종료 시 로그 정리
+
+            ### 🖥️ 시스템 요구사항
+            - Windows 10/11 (64비트)
+            - WebView2 Runtime (Windows 업데이트로 설치)
+
+            ### ⚠️ Windows Defender 경고
+            처음 실행 시 보안 경고가 나타날 수 있습니다.
+            "추가 정보" → "실행" 클릭으로 해결하세요.
+
+            ### 🔗 문의
+            - 카카오톡: https://open.kakao.com/o/sEeL0LNh
+            - GitHub Issues: 기술적 문의 및 버그 리포트
+          draft: false
+          prerelease: false

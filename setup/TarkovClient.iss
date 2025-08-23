@@ -3,7 +3,7 @@
 ; Copyright (c) 2025 TarkovClient Project
 
 #define MyAppName "Tarkov Client"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "0.1.1"
 #define MyAppPublisher "crows_gear_byeong_il"
 #define MyAppURL "https://github.com/"
 #define MyAppExeName "TarkovClient.exe"

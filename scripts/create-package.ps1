@@ -6,14 +6,16 @@ Write-Host "====================================" -ForegroundColor Cyan
 if ($env:GITHUB_REF -and $env:GITHUB_REF -match "refs/tags/v(.+)") {
     $version = "v" + $matches[1]
     Write-Host "[INFO] Using version from Git tag: $version" -ForegroundColor Cyan
-} else {
+}
+else {
     # .csproj 파일에서 버전 추출
     $csprojContent = Get-Content "TarkovClient.csproj" -Raw
     if ($csprojContent -match '<Version>([\d\.]+)</Version>') {
         $version = "v" + $matches[1]
         Write-Host "[INFO] Using version from csproj: $version" -ForegroundColor Cyan
-    } else {
-        $version = "v0.1.0"
+    }
+    else {
+        $version = "v0.1.1"
         Write-Host "[INFO] Using default version: $version" -ForegroundColor Yellow
     }
 }
