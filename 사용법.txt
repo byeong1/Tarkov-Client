@@ -153,7 +153,7 @@ GitHub: https://github.com/byeong1/Tarkov-Client
 
 ===============================================
 
-Tarkov Client v0.1.0
+Tarkov Client v0.1.1
 © 2025 TarkovClient Project
 
 감사합니다!
