@@ -13,11 +13,100 @@
     
     <Grid>
         <!-- 탭 기반 UI -->
-        <Grid>
+        <Grid x:Name="MainContentGrid" Panel.ZIndex="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="39"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- 사이드바 (탭 관련 버튼들) -->
+            <Border x:Name="TabSidebar" 
+                    Grid.Column="0" 
+                    Background="#FF1A1A1A">
+                <StackPanel Margin="0,8,0,0">
+                    <!-- 새 탭 추가 버튼 -->
+                    <Button x:Name="NewTabButton"
+                            Width="35" Height="35"
+                            Margin="2,2,0,2"
+                            Background="#FF2A2A2A"
+                            BorderThickness="0"
+                            Foreground="White"
+                            Content="TC"
+                            FontSize="11"
+                            FontWeight="Bold"
+                            Click="NewTab_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="4,4,0,0"
+                                                    Padding="2">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#FF5A5A5A"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter Property="Background" Value="#FF1A1A1A"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- 설정 버튼 -->
+                    <Button x:Name="SettingsButton"
+                            Width="35" Height="35"
+                            Margin="2,2,0,2"
+                            Background="#FF2A2A2A"
+                            BorderThickness="0"
+                            Foreground="White"
+                            Content="⚙"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Click="Settings_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="4,4,0,0"
+                                                    Padding="2">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#FF5A5A5A"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter Property="Background" Value="#FF1A1A1A"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                </StackPanel>
+            </Border>
+            
+            <!-- 메인 탭 영역 -->
             <TabControl x:Name="TabContainer" 
+                        Grid.Column="1"
+                        Panel.ZIndex="100"
                         Background="#FF1A1A1A"
-                        BorderThickness="0"
-                        Margin="34,0,0,0">
+                        BorderThickness="0">
                 <TabControl.Resources>
                     <!-- 탭 헤더 스타일 -->
                     <Style TargetType="TabItem">
@@ -75,49 +164,15 @@
                     </Style>
                 </TabControl.Resources>
             </TabControl>
-            
-            <!-- 새 탭 추가 버튼을 TabPanel과 같은 위치에 배치 -->
-            <Button x:Name="NewTabButton"
-                    Width="30" Height="26"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Margin="2,2,0,0"
-                    Background="#FF2A2A2A"
-                    BorderThickness="0"
-                    Foreground="White"
-                    Content="+"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Click="NewTab_Click">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="3,3,0,0"
-                                            Padding="2">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#FF4A4A4A"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
-            </Button>
         </Grid>
+        
         
         
         <!-- 전체 로딩 상태 표시 -->
         <Border x:Name="LoadingPanel"
                 Background="#DD1A1A1A"
-                Visibility="Visible">
+                Visibility="Collapsed"
+                Panel.ZIndex="50">
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
                 <TextBlock Text="Tarkov Client"
