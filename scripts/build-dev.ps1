@@ -10,8 +10,6 @@ $result = dotnet build --configuration Debug --verbosity minimal
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] Development build failed!" -ForegroundColor Red
-    Write-Host "Press any key to continue..."
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     exit $LASTEXITCODE
 }
 

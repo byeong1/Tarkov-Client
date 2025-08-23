@@ -208,6 +208,15 @@ namespace TarkovClient
                                 {
                                     // sending raw location name
                                     Server.SendMap(map);
+
+                                    // 1차 트리거: 맵 변경 시 PiP 활성화
+                                    if (
+                                        Env.GetSettings().pipEnabled
+                                        && PipController.Instance != null
+                                    )
+                                    {
+                                        PipController.Instance.OnMapChanged(map);
+                                    }
                                 }
                             }
                             else if (line.Contains(LOCATION_SUBSTRING2))
@@ -218,6 +227,15 @@ namespace TarkovClient
                                 {
                                     // sending raw location name
                                     Server.SendMap(map);
+
+                                    // 1차 트리거: 맵 변경 시 PiP 활성화
+                                    if (
+                                        Env.GetSettings().pipEnabled
+                                        && PipController.Instance != null
+                                    )
+                                    {
+                                        PipController.Instance.OnMapChanged(map);
+                                    }
                                 }
                             }
                             else if (line.Contains(BECLIENT_INIT_SUBSTRING))

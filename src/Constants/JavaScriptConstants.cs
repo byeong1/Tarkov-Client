@@ -153,9 +153,7 @@ namespace TarkovClient.Constants
                             }
                             
                             isProcessed = true;
-                        } catch (error) {
-                            console.log('커스터마이징 오류:', error);
-                        }
+                        } catch { }
                     }
                     
                     // 초기 커스터마이징 적용
@@ -306,5 +304,400 @@ namespace TarkovClient.Constants
                     // 2초 후에 마커 초기화 시도
                     setTimeout(initMarkers, 2000);
                 })();";
+
+        /// <summary>
+        /// PiP 모드용 오버레이 생성 스크립트 (키보드 입력 차단 문제 해결)
+        /// </summary>
+        public const string CREATE_PIP_OVERLAY_SCRIPT =
+            @"
+                (function() {
+                    'use strict';
+                    
+                    // 기존 PiP 요소들 제거
+                    const existingControlBar = document.getElementById('pip-control-bar');
+                    if (existingControlBar) {
+                        existingControlBar.remove();
+                    }
+                    
+                    // 기존 스타일 제거
+                    const existingStyle = document.getElementById('pip-control-style');
+                    if (existingStyle) existingStyle.remove();
+                    
+                    // 상단 컨트롤 바만 생성 (전체 화면 오버레이 제거)
+                    const controlBar = document.createElement('div');
+                    controlBar.id = 'pip-control-bar';
+                    controlBar.style.cssText = `
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        width: 100% !important;
+                        height: 50px !important;
+                        z-index: 2147483647 !important;
+                        pointer-events: auto !important;
+                        background: transparent !important;
+                        display: flex !important;
+                        opacity: 1 !important;
+                        transition: opacity 0.2s ease !important;
+                        border-bottom: 1px solid transparent !important;
+                    `;
+                    
+                    // 창이동  영역 (80%) - 실제 텍스트 콘텐츠 추가
+                    const dragArea = document.createElement('div');
+                    dragArea.id = 'pip-drag-area';
+                    dragArea.innerHTML = '';
+                    dragArea.style.cssText = `
+                        position: relative !important;
+                        width: 80% !important;
+                        height: 100% !important;
+                        cursor: move !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        color: white !important;
+                        font-size: 14px !important;
+                        font-weight: bold !important;
+                        text-align: center !important;
+                        background: transparent !important;
+                    `;
+                    
+                    // 종료 버튼 영역 (20%) - 실제 텍스트 콘텐츠 추가
+                    const exitArea = document.createElement('div');
+                    exitArea.id = 'pip-exit-area';
+                    exitArea.innerHTML = '';
+                    exitArea.style.cssText = `
+                        position: relative !important;
+                        width: 20% !important;
+                        height: 100% !important;
+                        cursor: pointer !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        color: white !important;
+                        font-size: 20px !important;
+                        font-weight: bold !important;
+                        background: transparent !important;
+                        border-left: 1px solid transparent !important;
+                    `;
+                    
+                    // 스타일 추가
+                    const style = document.createElement('style');
+                    style.id = 'pip-control-style';
+                    style.textContent = `
+                        #pip-control-bar {
+                            font-family: Arial, sans-serif !important;
+                        }
+                        #pip-control-bar {
+                            opacity: 1 !important;
+                            background: rgba(0, 0, 0, 0.85) !important;
+                            border-bottom-color: rgba(255, 255, 255, 0.2) !important;
+                        }
+                        #pip-drag-area {
+                            color: rgba(255, 255, 255, 0.8) !important;
+                            font-size: 14px !important;
+                        }
+                        #pip-exit-area {
+                            color: rgba(255, 255, 255, 0.8) !important;
+                            font-size: 18px !important;
+                        }
+                        #pip-control-bar {
+                            background: rgba(80, 80, 80, 0.8) !important;
+                        }
+                    `;
+                    
+
+                    document.head.appendChild(style);
+                    
+                    // 창이동 기능 구현 (WPF DragMove 방식)
+                    dragArea.addEventListener('mousedown', function(e) {
+                        
+                        // WPF로 창이동 시작 알림
+                        const dragStartMessage = {
+                            type: 'pip-drag-start'
+                        };
+
+                        try {
+                            window.chrome.webview.postMessage(JSON.stringify(dragStartMessage));
+                        } catch {}
+                        
+                        e.preventDefault();
+                    });
+                    
+                    // 종료 기능 구현
+                    exitArea.addEventListener('click', function() {
+                        const message = {
+                            type: 'pip-exit'
+                        };
+                        try {
+                            window.chrome.webview.postMessage(JSON.stringify(message));
+                        } catch {}
+                    });
+                    
+                    // 컨트롤 바 조립
+                    controlBar.appendChild(dragArea);
+                    controlBar.appendChild(exitArea);
+
+                    document.body.appendChild(controlBar);
+                    
+                    function showControls() {
+                        dragArea.innerHTML = '⋮⋮⋮ 창 이동';
+                        exitArea.innerHTML = 'X';
+                    }
+                    
+                    function hideControls() {
+                        dragArea.innerHTML = '';
+                        exitArea.innerHTML = '';
+                    }
+
+                    // 컨트롤 영역 호버 시 텍스트 변경
+                    controlBar.addEventListener('mouseenter', function() {
+                        showControls();
+                    });
+                    
+                    controlBar.addEventListener('mouseleave', function() {
+                        hideControls();
+                    });
+                    
+                    // 마우스 움직임 감지로 컨트롤 표시 (디버깅 로그 추가)
+                    document.addEventListener('mousemove', function(e) {
+                        try {
+                            const level3Element = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_right > div.d-flex.h-space-between.layers.mb-15 > div:nth-child(1) > div:nth-child(2)');
+                            
+                            showControls();
+                        } catch { }
+                    });
+
+                    document.addEventListener('mouseleave', function() {
+                        hideControls();
+                    });
+                    
+                    // 맵 설정 저장 기능
+                    function saveMapSettings() {
+                        try {
+                            const mapElement = document.querySelector('#map');
+                            if (mapElement && mapElement.style.transform) {
+                                window.chrome.webview.postMessage(JSON.stringify({
+                                    type: 'save-map-settings',
+                                    transform: mapElement.style.transform
+                                }));
+                            }
+                        } catch {}
+                    }
+                    
+                    // 윈도우 포커스 해제 시 맵 설정 저장
+                    window.addEventListener('blur', function() {
+                        saveMapSettings();
+                    });
+                    
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'pip-overlay-ready'
+                    }));
+                    
+                })();";
+
+        /// <summary>
+        /// PiP 모드용 컨트롤 제거 스크립트
+        /// </summary>
+        public const string REMOVE_PIP_OVERLAY_SCRIPT =
+            @"
+                (function() {
+                    // PiP 컨트롤 바 제거
+                    const controlBar = document.getElementById('pip-control-bar');
+                    if (controlBar) {
+                        controlBar.remove();
+                    }
+                    
+                    // PiP 스타일 제거
+                    const style = document.getElementById('pip-control-style');
+                    if (style) {
+                        style.remove();
+                    }
+                })();";
+
+        public const string TARKOV_MARGET_ELEMENT_RESTORE =
+            @"
+                    try {
+                        // panel_left 복원
+                        var panelLeft = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_left');
+                        if (panelLeft) {
+                            panelLeft.style.display = '';
+                        }
+
+                        // panel_right 복원
+                        var panelRight = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_right');
+                        if (panelRight) {
+                            panelRight.style.display = '';
+                        }
+                        
+                        // panel_top 복원
+                        var panelTop = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_top');
+                        if (panelTop) {
+                            panelTop.style.display = '';
+                        }
+                        
+                        // header 복원
+                        var header = document.querySelector('#__nuxt > div > div > header');
+                        if (header) {
+                            header.style.display = '';
+                        }
+                        
+                        // footer-wrap 복원
+                        var footerWrap = document.querySelector('#__nuxt > div > div > div.footer-wrap');
+                        if (footerWrap) {
+                            footerWrap.style.display = '';
+                        }
+                        
+                        // 지도 스케일링 초기화
+                        var mapElement = document.querySelector('#map');
+                        if (mapElement) {
+                            mapElement.style.transform = '';
+                            mapElement.style.transformOrigin = '';
+                        }
+                    } catch { }
+                ";
+
+        public const string REMOVE_TARKOV_MARGET_ELEMENT_PANNEL_LEFT =
+            @"
+                    try {
+                        var panelLeft = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_left');
+                        if (panelLeft) {
+                            panelLeft.style.display = 'none';
+                        } else {
+                        }
+                    } catch { }
+                ";
+
+        public const string REMOVE_TARKOV_MARGET_ELEMENT_PANNEL_RIGHT =
+            @"
+                    try {
+                        var panelRight = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_right');
+                        if (panelRight) {
+                            panelRight.style.display = 'none';
+                        } else {
+                        }
+                    } catch { }
+                ";
+
+        public const string REMOVE_TARKOV_MARGET_ELEMENT_PANNEL_TOP =
+            @"
+                    try {
+                        var panelTop = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_top');
+                        if (panelTop) {
+                            panelTop.style.display = 'none';
+                        } else {
+                        }
+                    } catch { }
+                ";
+
+        public const string REMOVE_TARKOV_MARGET_ELEMENT_HEADER =
+            @"
+                    try {
+                        var header = document.querySelector('#__nuxt > div > div > header');
+                        if (header) {
+                            header.style.display = 'none';
+                        } else {
+                        }
+                    } catch { }
+                ";
+
+        public const string REMOVE_TARKOV_MARGET_ELEMENT_FOOTER =
+            @"
+                    try {
+                        var footerWrap = document.querySelector('#__nuxt > div > div > div.footer-wrap');
+                        if (footerWrap) {
+                            footerWrap.style.display = 'none';
+                        } else {
+                        }
+                    } catch { }
+                ";
+
+        /// <summary>
+        /// 큰 창 크기일 때 요소들을 복원하는 스크립트 (지도 스케일은 유지)
+        /// </summary>
+        public const string RESTORE_ELEMENTS_FOR_LARGE_SIZE =
+            @"
+                    try {
+                        
+                        // panel_left 복원
+                        var panelLeft = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_left');
+                        if (panelLeft) {
+                            panelLeft.style.display = '';
+                        }
+
+                        // panel_right 복원
+                        var panelRight = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_right');
+                        if (panelRight) {
+                            panelRight.style.display = '';
+                        }
+                        
+                        // panel_top 복원
+                        var panelTop = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_top');
+                        if (panelTop) {
+                            panelTop.style.display = '';
+                        }
+                        
+                        // header 복원
+                        var header = document.querySelector('#__nuxt > div > div > header');
+                        if (header) {
+                            header.style.display = '';
+                        }
+                        
+                    } catch { }
+                ";
+
+        /// <summary>
+        /// 작은 창 크기일 때 요소들을 숨기는 스크립트
+        /// </summary>
+        public const string HIDE_ELEMENTS_FOR_SMALL_SIZE =
+            @"
+                    try {
+                        
+                        // panel_left 숨김
+                        var panelLeft = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_left');
+                        if (panelLeft) {
+                            panelLeft.style.display = 'none';
+                        }
+
+                        // panel_right 숨김
+                        var panelRight = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_right');
+                        if (panelRight) {
+                            panelRight.style.display = 'none';
+                        }
+                        
+                        // panel_top 숨김
+                        var panelTop = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_top');
+                        if (panelTop) {
+                            panelTop.style.display = 'none';
+                        }
+                        
+                        // header 숨김
+                        var header = document.querySelector('#__nuxt > div > div > header');
+                        if (header) {
+                            header.style.display = 'none';
+                        }
+                        
+                    } catch { }
+                ";
+
+        /// <summary>
+        /// 현재 요소들의 표시/숨김 상태를 확인하는 스크립트
+        /// </summary>
+        public const string CHECK_ELEMENTS_VISIBILITY_STATUS =
+            @"
+                    (function() {
+                        try {
+                            var panelLeft = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_left');
+                            var panelRight = document.querySelector('#__nuxt > div > div > div.page-content > div > div > div.panel_right');
+                            var header = document.querySelector('#__nuxt > div > div > header');
+                            
+                            var status = {
+                                panelLeftVisible: panelLeft ? (panelLeft.style.display !== 'none') : false,
+                                panelRightVisible: panelRight ? (panelRight.style.display !== 'none') : false,
+                                headerVisible: header ? (header.style.display !== 'none') : false
+                            };
+                            
+                            return JSON.stringify(status);
+                        } catch { }
+                    })();
+                ";
     }
 }
