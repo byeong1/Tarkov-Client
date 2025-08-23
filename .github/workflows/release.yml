@@ -3,134 +3,135 @@ name: Release Build and Deploy
 on:
   push:
     tags:
-      - 'v*.*.*'  # v0.0.1, v1.2.3 등의 태그가 푸시될 때 실행
+      - "v*.*.*" # v0.0.1, v1.2.3 등의 태그가 푸시될 때 실행
     branches:
-      - main  # main 브랜치에서만 실행
-  workflow_dispatch:  # 수동 실행도 가능
+      - main # main 브랜치에서만 실행
+  workflow_dispatch: # 수동 실행도 가능
 
 permissions:
-  contents: write  # Release 생성 권한 명시적 부여
+  contents: write # Release 생성 권한 명시적 부여
 
 jobs:
   release:
     name: Create Release
     runs-on: windows-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-        
-    - name: Extract version from tag
-      id: get_version
-      shell: pwsh
-      run: |
-        if ("${{ github.ref }}" -match "refs/tags/v(.+)") {
-          $version = $matches[1]
-          echo "version=$version" >> $env:GITHUB_OUTPUT
-          echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
-        } else {
-          $version = "0.1.0"
-          echo "version=$version" >> $env:GITHUB_OUTPUT  
-          echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
-        }
-        echo "Extracted version: $version"
-        
-    - name: Update project version
-      shell: pwsh
-      run: |
-        $version = "${{ steps.get_version.outputs.version }}"
-        $csprojPath = "TarkovClient.csproj"
-        
-        # .csproj 파일의 버전 업데이트
-        $content = Get-Content $csprojPath -Raw
-        $content = $content -replace '<Version>[\d\.]+</Version>', "<Version>$version</Version>"
-        $content = $content -replace '<FileVersion>[\d\.]+</FileVersion>', "<FileVersion>$version</FileVersion>"
-        $content = $content -replace '<AssemblyVersion>[\d\.]+</AssemblyVersion>', "<AssemblyVersion>$version</AssemblyVersion>"
-        Set-Content -Path $csprojPath -Value $content -Encoding UTF8
-        
-        # 사용법.txt 파일의 버전 업데이트
-        if (Test-Path "사용법.txt") {
-          $usageContent = Get-Content "사용법.txt" -Raw -Encoding UTF8
-          $usageContent = $usageContent -replace 'Tarkov Client v[\d\.]+', "Tarkov Client v$version"
-          Set-Content -Path "사용법.txt" -Value $usageContent -Encoding UTF8
-        }
-        
-        echo "Updated version to: $version"
-        
-    - name: Set PowerShell execution policy
-      shell: pwsh
-      run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-      
-    - name: Build publish version
-      shell: pwsh
-      run: |
-        Write-Host "Building Self-Contained executable..." -ForegroundColor Green
-        & "scripts\build-publish.ps1"
-        if ($LASTEXITCODE -ne 0) {
-          Write-Host "Build failed!" -ForegroundColor Red
-          exit $LASTEXITCODE
-        }
-        
-    - name: Create package
-      shell: pwsh
-      run: |
-        Write-Host "Creating release package..." -ForegroundColor Green
-        & "scripts\create-package.ps1"
-        if ($LASTEXITCODE -ne 0) {
-          Write-Host "Package creation failed!" -ForegroundColor Red
-          exit $LASTEXITCODE
-        }
-        
-    - name: Build installer (optional)
-      shell: pwsh
-      run: |
-        # Inno Setup이 설치되어 있으면 설치 프로그램도 생성
-        if (Get-Command "iscc" -ErrorAction SilentlyContinue) {
-          Write-Host "Building Windows installer..." -ForegroundColor Green
-          & "setup\build-installer.ps1"
-        } else {
-          Write-Host "Inno Setup not found. Skipping installer build." -ForegroundColor Yellow
-        }
-      continue-on-error: true
-      
-    - name: Check for installer file
-      id: check_installer
-      shell: pwsh
-      run: |
-        if (Test-Path "setup/Output/TarkovClientSetup.exe") {
-          echo "installer_exists=true" >> $env:GITHUB_OUTPUT
-          Write-Host "Installer found and will be included in release" -ForegroundColor Green
-        } else {
-          echo "installer_exists=false" >> $env:GITHUB_OUTPUT
-          Write-Host "Installer not found, skipping" -ForegroundColor Yellow
-        }
-        
-    - name: Create Release with installer
-      if: steps.check_installer.outputs.installer_exists == 'true'
-      uses: softprops/action-gh-release@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: ${{ steps.get_version.outputs.tag_name }}
-        name: 'Tarkov Client ${{ steps.get_version.outputs.version }}'
-        files: |
-          TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
-          setup/Output/TarkovClientSetup.exe
-        draft: false
-        prerelease: false
-        
-    - name: Create Release without installer
-      if: steps.check_installer.outputs.installer_exists != 'true'
-      uses: softprops/action-gh-release@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: ${{ steps.get_version.outputs.tag_name }}
-        name: 'Tarkov Client ${{ steps.get_version.outputs.version }}'
-        files: |
-          TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
-        draft: false
-        prerelease: false
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Extract version from tag
+        id: get_version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref }}" -match "refs/tags/v(.+)") {
+            $version = $matches[1]
+            echo "version=$version" >> $env:GITHUB_OUTPUT
+            echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
+          } else {
+            $version = "0.1.0"
+            echo "version=$version" >> $env:GITHUB_OUTPUT  
+            echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
+          }
+          echo "Extracted version: $version"
+
+      - name: Update project version
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.version }}"
+          $csprojPath = "TarkovClient.csproj"
+
+          # .csproj 파일의 버전 업데이트
+          $content = Get-Content $csprojPath -Raw
+          $content = $content -replace '<Version>[\d\.]+</Version>', "<Version>$version</Version>"
+          $content = $content -replace '<FileVersion>[\d\.]+</FileVersion>', "<FileVersion>$version</FileVersion>"
+          $content = $content -replace '<AssemblyVersion>[\d\.]+</AssemblyVersion>', "<AssemblyVersion>$version</AssemblyVersion>"
+          Set-Content -Path $csprojPath -Value $content -Encoding UTF8
+
+          # 사용법.txt 파일의 버전 업데이트
+          if (Test-Path "사용법.txt") {
+            $usageContent = Get-Content "사용법.txt" -Raw -Encoding UTF8
+            $usageContent = $usageContent -replace 'Tarkov Client v[\d\.]+', "Tarkov Client v$version"
+            Set-Content -Path "사용법.txt" -Value $usageContent -Encoding UTF8
+          }
+
+          echo "Updated version to: $version"
+
+      - name: Set PowerShell execution policy
+        shell: pwsh
+        run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+
+      - name: Build publish version
+        shell: pwsh
+        run: |
+          Write-Host "Building Self-Contained executable..." -ForegroundColor Green
+          & "scripts\build-publish.ps1"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Build failed!" -ForegroundColor Red
+            exit $LASTEXITCODE
+          }
+
+      - name: Create package
+        shell: pwsh
+        run: |
+          Write-Host "Creating release package..." -ForegroundColor Green
+          & "scripts\create-package.ps1"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Package creation failed!" -ForegroundColor Red
+            exit $LASTEXITCODE
+          }
+
+      - name: Build installer (optional)
+        shell: pwsh
+        run: |
+          # Inno Setup이 설치되어 있으면 설치 프로그램도 생성
+          if (Get-Command "iscc" -ErrorAction SilentlyContinue) {
+            Write-Host "Building Windows installer..." -ForegroundColor Green
+            & "setup\build-installer.ps1"
+          } else {
+            Write-Host "Inno Setup not found. Skipping installer build." -ForegroundColor Yellow
+          }
+        continue-on-error: true
+
+      - name: Check for installer file
+        id: check_installer
+        shell: pwsh
+        run: |
+          if (Test-Path "setup/Output/TarkovClientSetup.exe") {
+            echo "installer_exists=true" >> $env:GITHUB_OUTPUT
+            Write-Host "Installer found and will be included in release" -ForegroundColor Green
+          } else {
+            echo "installer_exists=false" >> $env:GITHUB_OUTPUT
+            Write-Host "Installer not found, skipping" -ForegroundColor Yellow
+          }
+
+      - name: Create Release with installer
+        if: steps.check_installer.outputs.installer_exists == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.get_version.outputs.tag_name }}
+          name: "Tarkov Client ${{ steps.get_version.outputs.version }}"
+          files: |
+            TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
+            setup/Output/TarkovClientSetup.exe
+          draft: false
+          prerelease: false
+
+      - name: Create Release without installer
+        if: steps.check_installer.outputs.installer_exists != 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.get_version.outputs.tag_name }}
+          name: "Tarkov Client ${{ steps.get_version.outputs.version }}"
+          files: |
+            TarkovClient-${{ steps.get_version.outputs.tag_name }}.zip
+          draft: false
+          prerelease: false
+

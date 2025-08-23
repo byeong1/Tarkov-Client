@@ -17,7 +17,6 @@ Tarkov Client는 Tarkov Market Pilot 웹사이트를 전용 데스크톱 앱으�
 
 ## 📥 다운로드
 
-**파일**: [TarkovClient-v0.1.0.zip](../../releases/latest/download/TarkovClient-v0.1.0.zip)  
 _최신 버전_: [Latest Release](../../releases/latest)
 
 **설치 방법**:
@@ -245,7 +244,7 @@ _최신 버전_: [Latest Release](../../releases/latest)
 
 <div align="center">
 
-**Tarkov Client v0.1.0**  
+**Tarkov Client v0.1.1**  
 © 2025 TarkovClient Project
 
 [GitHub](../../) • [Issues](../../issues) • [Releases](../../releases)
