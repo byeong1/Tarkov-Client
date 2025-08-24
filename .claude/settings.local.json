@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api/**)"
     ],
     "deny": [],
     "ask": []

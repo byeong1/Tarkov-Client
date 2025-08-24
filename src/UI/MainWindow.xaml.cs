@@ -180,6 +180,45 @@ public partial class MainWindow : Window
         }
     }
 
+    // TarkovTracker 탭 생성
+    private async Task CreateNewTrackerTab()
+    {
+        try
+        {
+            // 새 TabItem 생성
+            var newTab = new TabItem
+            {
+                Header = $"TarkovTracker {_tabCounter}",
+                Background = System.Windows.Media.Brushes.Transparent,
+            };
+
+            // 새 WebView2 생성
+            var webView = new WebView2
+            {
+                DefaultBackgroundColor = System.Drawing.Color.Transparent, // 투명 배경으로 설정
+            };
+
+            // 탭에 WebView2 추가
+            newTab.Content = webView;
+
+            // TabControl에 새 탭 추가
+            TabContainer.Items.Add(newTab);
+            _tabWebViews[newTab] = webView;
+
+            // 새 탭 선택
+            TabContainer.SelectedItem = newTab;
+
+            // WebView2 초기화 (TarkovTracker 사이트로)
+            await InitializeTrackerWebView(webView, newTab);
+
+            _tabCounter++;
+        }
+        catch (Exception)
+        {
+            // 에러 처리는 상위에서
+        }
+    }
+
     // WebView2 초기화
     private async Task InitializeWebView(WebView2 webView, TabItem tabItem)
     {
@@ -224,6 +263,49 @@ public partial class MainWindow : Window
         }
     }
 
+    // TarkovTracker WebView2 초기화
+    private async Task InitializeTrackerWebView(WebView2 webView, TabItem tabItem)
+    {
+        try
+        {
+            // WebView2 데이터 폴더를 사용자 앱데이터 폴더로 설정
+            var userDataFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "TarkovClient",
+                "WebView2"
+            );
+
+            var webView2Environment = await CoreWebView2Environment.CreateAsync(
+                null,
+                userDataFolder
+            );
+            await webView.EnsureCoreWebView2Async(webView2Environment);
+
+            // WebView2 설정
+            webView.CoreWebView2.Settings.AreDevToolsEnabled = true;
+            webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
+            webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+
+            // CSP 우회 설정 추가
+            webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+            webView.CoreWebView2.Settings.IsScriptEnabled = true;
+
+            // 이벤트 핸들러 등록
+            webView.NavigationCompleted += (sender, e) =>
+                WebView_NavigationCompleted(sender, e, tabItem);
+            webView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
+            webView.CoreWebView2.DocumentTitleChanged += (sender, e) =>
+                UpdateTabTitle(tabItem, webView.CoreWebView2.DocumentTitle);
+
+            // TarkovTracker 페이지 로드
+            webView.Source = new Uri("https://tarkovtracker.io/");
+        }
+        catch (Exception)
+        {
+            // 에러 처리
+        }
+    }
+
     // TC 버튼 클릭 - 새 탭 생성
     private void NewTab_Click(object sender, RoutedEventArgs e)
     {
@@ -233,6 +315,74 @@ public partial class MainWindow : Window
             _ = CreateNewTab();
         }
         catch (Exception) { }
+    }
+
+    // TarkovTracker 버튼 클릭
+    private void TrackerTab_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // 새로운 TarkovTracker 탭 생성
+            _ = CreateNewTrackerTab();
+        }
+        catch (Exception) { }
+    }
+
+    // 파티 버튼 클릭
+    private void Party_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // 이미 파티 탭이 있는지 확인
+            TabItem existingPartyTab = null;
+            foreach (TabItem tab in TabContainer.Items)
+            {
+                if (tab.Header?.ToString() == "파티 (Party)")
+                {
+                    existingPartyTab = tab;
+                    break;
+                }
+            }
+
+            if (existingPartyTab != null)
+            {
+                // 기존 탭을 선택
+                TabContainer.SelectedItem = existingPartyTab;
+            }
+            else
+            {
+                // 새 파티 탭 생성
+                var newTab = new TabItem
+                {
+                    Header = "파티 (Party)",
+                    Background = new SolidColorBrush(
+                        System.Windows.Media.Color.FromRgb(42, 42, 42)
+                    ),
+                    Foreground = System.Windows.Media.Brushes.White,
+                };
+
+                // PartyPage 컨트롤 생성
+                var partyPage = new TarkovClient.Pages.PartyPage();
+                newTab.Content = partyPage;
+
+                TabContainer.Items.Add(newTab);
+                TabContainer.SelectedItem = newTab;
+
+                TarkovClientLogger.TarkovClientLogger.WriteDebugLog("파티 탭이 생성되었습니다.");
+            }
+        }
+        catch (Exception ex)
+        {
+            TarkovClientLogger.TarkovClientLogger.WriteDebugLog(
+                $"파티 탭 생성 중 오류: {ex.Message}"
+            );
+            System.Windows.MessageBox.Show(
+                $"파티 탭을 열 수 없습니다: {ex.Message}",
+                "오류",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error
+            );
+        }
     }
 
     // 설정 버튼 클릭
@@ -264,7 +414,6 @@ public partial class MainWindow : Window
         }
         catch (Exception) { }
     }
-
 
     // 탭별 WebView2 네비게이션 완료 이벤트
     private void WebView_NavigationCompleted(
