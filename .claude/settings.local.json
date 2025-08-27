@@ -4,7 +4,19 @@
       "WebFetch(domain:github.com)",
       "WebSearch",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Read(/C:\\Users\\qoqud\\code\\tarkov-api/**)"
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api/**)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api/**)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api/**)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api/**)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api\\resolvers/**)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api/**)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api/**)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api\\docs/**)",
+      "Read(/C:\\Users\\qoqud\\code\\tarkov-api\\docs/**)",
+      "WebFetch(domain:api.tarkov.dev)",
+      "Bash(curl:*)",
+      "Bash(find:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []

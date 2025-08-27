@@ -79,6 +79,22 @@ public partial class MainWindow : Window
         }
     }
 
+    // TarkovTracker에 번역 버튼 추가
+    private static async Task AddTranslateButtonToTracker(WebView2 webView)
+    {
+        try
+        {
+            await Task.Delay(2000); // 페이지 로딩 완료 대기
+            await webView.CoreWebView2.ExecuteScriptAsync(
+                JavaScriptConstants.ADD_TARKOVTRACKER_TRANSLATE_BUTTON
+            );
+        }
+        catch (Exception)
+        {
+            // 에러 처리
+        }
+    }
+
     // 불필요한 UI 요소 제거 (탭별)
     private static async Task RemoveUnwantedElements(WebView2 webView)
     {
@@ -219,6 +235,48 @@ public partial class MainWindow : Window
         }
     }
 
+    // 새 퀘스트 탭 생성 (HTML 기반)
+    private async Task CreateNewQuestTab()
+    {
+        try
+        {
+            // 새 TabItem 생성
+            var newTab = new TabItem
+            {
+                Header = "퀘스트 (Quest)",
+                Background = new SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(42, 42, 42)
+                ),
+                Foreground = System.Windows.Media.Brushes.White,
+            };
+
+            // 새 WebView2 생성
+            var webView = new WebView2
+            {
+                DefaultBackgroundColor = System.Drawing.Color.Black, // 퀘스트 페이지는 검은 배경
+            };
+
+            // 탭에 WebView2 추가
+            newTab.Content = webView;
+
+            // TabControl에 새 탭 추가
+            TabContainer.Items.Add(newTab);
+            _tabWebViews[newTab] = webView;
+
+            // 새 탭 선택
+            TabContainer.SelectedItem = newTab;
+
+            // WebView2 초기화 (HTML 파일로)
+            await InitializeQuestWebView(webView, newTab);
+
+            TarkovClientLogger.TarkovClientLogger.WriteDebugLog("퀘스트 탭이 생성되었습니다.");
+        }
+        catch (Exception)
+        {
+            // 에러 처리는 상위에서
+        }
+    }
+
     // WebView2 초기화
     private async Task InitializeWebView(WebView2 webView, TabItem tabItem)
     {
@@ -292,7 +350,7 @@ public partial class MainWindow : Window
 
             // 이벤트 핸들러 등록
             webView.NavigationCompleted += (sender, e) =>
-                WebView_NavigationCompleted(sender, e, tabItem);
+                TrackerWebView_NavigationCompleted(sender, e, tabItem);
             webView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
             webView.CoreWebView2.DocumentTitleChanged += (sender, e) =>
                 UpdateTabTitle(tabItem, webView.CoreWebView2.DocumentTitle);
@@ -303,6 +361,116 @@ public partial class MainWindow : Window
         catch (Exception)
         {
             // 에러 처리
+        }
+    }
+
+    // 퀘스트 WebView2 초기화 (HTML 파일 로드)
+    private async Task InitializeQuestWebView(WebView2 webView, TabItem tabItem)
+    {
+        try
+        {
+            // WebView2 데이터 폴더를 사용자 앱데이터 폴더로 설정
+            var userDataFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "TarkovClient",
+                "WebView2"
+            );
+
+            var webView2Environment = await CoreWebView2Environment.CreateAsync(
+                null,
+                userDataFolder
+            );
+            await webView.EnsureCoreWebView2Async(webView2Environment);
+
+            // WebView2 설정
+            webView.CoreWebView2.Settings.AreDevToolsEnabled = true;
+            webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
+            webView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+            webView.CoreWebView2.Settings.AreHostObjectsAllowed = true;
+            webView.CoreWebView2.Settings.IsScriptEnabled = true;
+
+            // 가상 호스트 매핑 설정 (CORS 해결)
+            var websFolderPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "src", "Webs"
+            );
+            webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                "tarkov.local",
+                websFolderPath,
+                CoreWebView2HostResourceAccessKind.DenyCors
+            );
+
+            // 이벤트 핸들러 등록
+            webView.NavigationCompleted += (sender, e) =>
+                QuestWebView_NavigationCompleted(sender, e, tabItem);
+            webView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
+            webView.CoreWebView2.DocumentTitleChanged += (sender, e) =>
+                UpdateTabTitle(tabItem, "퀘스트 (Quest)"); // 고정 제목 사용
+
+            // 가상 호스트를 통한 HTML 파일 로드
+            var htmlFilePath = Path.Combine(websFolderPath, "index.html");
+
+            if (File.Exists(htmlFilePath))
+            {
+                // file:// 대신 가상 호스트 사용
+                webView.Source = new Uri("https://tarkov.local/index.html");
+                TarkovClientLogger.TarkovClientLogger.WriteDebugLog($"가상 호스트로 퀘스트 페이지 로드: https://tarkov.local/index.html");
+            }
+            else
+            {
+                TarkovClientLogger.TarkovClientLogger.WriteDebugLog($"퀘스트 HTML 파일을 찾을 수 없습니다: {htmlFilePath}");
+                // 기본 HTML을 문자열로 로드
+                LoadQuestHtmlString(webView);
+            }
+        }
+        catch (Exception ex)
+        {
+            TarkovClientLogger.TarkovClientLogger.WriteDebugLog($"퀘스트 WebView 초기화 오류: {ex.Message}");
+        }
+    }
+
+    // HTML 파일을 찾을 수 없을 때 기본 HTML 로드
+    private void LoadQuestHtmlString(WebView2 webView)
+    {
+        var defaultHtml = @"
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>퀘스트 (Quest)</title>
+    <style>
+        body { background-color: #000000; color: white; font-family: 'Segoe UI', sans-serif; margin: 20px; }
+        .error { color: #ff6b6b; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>퀘스트 (Quest)</h1>
+    <p class='error'>퀘스트 HTML 파일을 로드할 수 없습니다.</p>
+    <p>src/Webs/Quests/html/index.html 파일을 확인해주세요.</p>
+</body>
+</html>";
+        
+        webView.CoreWebView2.NavigateToString(defaultHtml);
+    }
+
+    // 퀘스트 WebView 네비게이션 완료 이벤트
+    private void QuestWebView_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e, TabItem tabItem)
+    {
+        try
+        {
+            if (e.IsSuccess)
+            {
+                TarkovClientLogger.TarkovClientLogger.WriteDebugLog("퀘스트 페이지 로드 완료");
+            }
+            else
+            {
+                TarkovClientLogger.TarkovClientLogger.WriteDebugLog($"퀘스트 페이지 로드 실패: {e.WebErrorStatus}");
+            }
+        }
+        catch (Exception ex)
+        {
+            TarkovClientLogger.TarkovClientLogger.WriteDebugLog($"퀘스트 네비게이션 완료 이벤트 오류: {ex.Message}");
         }
     }
 
@@ -385,6 +553,47 @@ public partial class MainWindow : Window
         }
     }
 
+    // 퀘스트 버튼 클릭
+    private void Quest_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // 이미 퀘스트 탭이 있는지 확인
+            TabItem existingQuestTab = null;
+            foreach (TabItem tab in TabContainer.Items)
+            {
+                if (tab.Header?.ToString() == "퀘스트 (Quest)")
+                {
+                    existingQuestTab = tab;
+                    break;
+                }
+            }
+
+            if (existingQuestTab != null)
+            {
+                // 기존 탭을 선택
+                TabContainer.SelectedItem = existingQuestTab;
+            }
+            else
+            {
+                // 새 퀘스트 탭 생성 (WebView2 기반)
+                _ = CreateNewQuestTab();
+            }
+        }
+        catch (Exception ex)
+        {
+            TarkovClientLogger.TarkovClientLogger.WriteDebugLog(
+                $"퀘스트 탭 생성 중 오류: {ex.Message}"
+            );
+            System.Windows.MessageBox.Show(
+                $"퀘스트 탭을 열 수 없습니다: {ex.Message}",
+                "오류",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error
+            );
+        }
+    }
+
     // 설정 버튼 클릭
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
@@ -435,6 +644,22 @@ public partial class MainWindow : Window
             // 불필요한 UI 요소 제거 및 방향 표시기 추가
             _ = RemoveUnwantedElements(webView);
             _ = AddDirectionIndicators(webView);
+        }
+    }
+
+    // TarkovTracker 탭 WebView2 네비게이션 완료 이벤트
+    private void TrackerWebView_NavigationCompleted(
+        object sender,
+        CoreWebView2NavigationCompletedEventArgs e,
+        TabItem tabItem
+    )
+    {
+        var webView = sender as WebView2;
+
+        if (e.IsSuccess)
+        {
+            // TarkovTracker 페이지에 번역 버튼 추가
+            _ = AddTranslateButtonToTracker(webView);
         }
     }
 
@@ -566,6 +791,7 @@ public partial class MainWindow : Window
                     }
                     catch (Exception) { }
                     break;
+
 
                 default:
                     break;
@@ -911,4 +1137,5 @@ public partial class MainWindow : Window
     {
         InitializeHotkeyManager();
     }
+
 }

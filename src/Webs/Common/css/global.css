@@ -1,0 +1,330 @@
+/* =========================
+   Tarkov Tracker - Global Styles
+   ========================= */
+
+/* 로딩 컴포넌트 */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(26, 26, 26, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(13, 115, 119, 0.3);
+    border-top: 3px solid #0D7377;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-message {
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 공통 버튼 스타일 */
+.btn-common {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    background-color: #0D7377;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0A5D61;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(13, 115, 119, 0.3);
+}
+
+.btn-secondary {
+    background-color: #4A4A4A;
+    color: #e0e0e0;
+}
+
+.btn-secondary:hover {
+    background-color: #5A5A5A;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(74, 74, 74, 0.3);
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+}
+
+/* 버튼 크기 변형 */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-lg {
+    padding: 12px 20px;
+    font-size: 16px;
+}
+
+/* 비활성화된 버튼 */
+.btn-common:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 공통 카드 스타일 */
+.card-common {
+    background-color: #2A2A2A;
+    border: 1px solid #404040;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.card-header-common {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #404040;
+}
+
+.card-title-common {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin: 0;
+}
+
+.card-body-common {
+    color: #cccccc;
+}
+
+/* 공통 입력 필드 스타일 */
+.input-common {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: #3A3A3A;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.input-common:focus {
+    outline: none;
+    border-color: #0D7377;
+    box-shadow: 0 0 0 2px rgba(13, 115, 119, 0.2);
+}
+
+.input-common::placeholder {
+    color: #888888;
+}
+
+/* 공통 선택 박스 스타일 */
+.select-common {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: #3A3A3A;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.select-common:focus {
+    outline: none;
+    border-color: #0D7377;
+    box-shadow: 0 0 0 2px rgba(13, 115, 119, 0.2);
+}
+
+/* 공통 체크박스 스타일 */
+.checkbox-common {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-common input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #0D7377;
+}
+
+.checkbox-common label {
+    color: #e0e0e0;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* 공통 알림/토스트 스타일 */
+.toast-common {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 500px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.toast-common.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-success {
+    background-color: #28a745;
+}
+
+.toast-error {
+    background-color: #dc3545;
+}
+
+.toast-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.toast-info {
+    background-color: #17a2b8;
+}
+
+/* 공통 배지 스타일 */
+.badge-common {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 12px;
+    min-width: 20px;
+    height: 20px;
+}
+
+.badge-primary {
+    background-color: #0D7377;
+    color: white;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* 반응형 유틸리티 */
+@media (max-width: 768px) {
+    .btn-common {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .card-common {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .toast-common {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

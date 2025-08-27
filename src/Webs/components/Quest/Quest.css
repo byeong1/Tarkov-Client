@@ -1,0 +1,739 @@
+/* Quest Component Styles - Original Design */
+
+/* 퀘스트 섹션 헤더 */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #404040;
+}
+
+.section-header h1 {
+    color: #e0e0e0;
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* 필터 및 검색 영역 */
+.header-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    background-color: #3A3A3A;
+    color: #e0e0e0;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    font-size: 14px;
+    min-width: 120px;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #0D7377;
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-input {
+    padding: 8px 12px;
+    background-color: #3A3A3A;
+    color: #e0e0e0;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    font-size: 14px;
+    min-width: 200px;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #0D7377;
+}
+
+.search-input::placeholder {
+    color: #888888;
+}
+
+/* 퀘스트 컨테이너 */
+.quests-container {
+    position: relative;
+    min-height: 400px;
+}
+
+.loading-message {
+    text-align: center;
+    color: #888888;
+    font-size: 16px;
+    margin: 40px 0;
+}
+
+/* 퀘스트 목록 */
+.quests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* 퀘스트 카드 - 7:3 가로 레이아웃 */
+.quest-card {
+    background-color: #2A2A2A;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    padding: 0;
+    transition: all 0.2s ease;
+    min-height: 160px;
+}
+
+.quest-card:hover {
+    border-color: #0D7377;
+}
+
+/* 7:3 비율 메인 컨테이너 */
+.quest-main-layout {
+    display: grid;
+    grid-template-columns: 7fr 3fr;
+    height: 100%;
+    min-height: 160px;
+}
+
+/* 좌측 영역 (70%) */
+.quest-left-area {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px;
+    border-right: 1px solid #404040;
+}
+
+/* 우측 영역 (30%) - 모든 요소 중앙 정렬 */
+.quest-right-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px;
+}
+
+/* 6개 독립 박스 공통 스타일 */
+.quest-box {
+    background: rgba(13, 115, 119, 0.12);
+    border: 1px solid rgba(13, 115, 119, 0.2);
+    border-radius: 4px;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+}
+
+/* 헤더 영역 컨테이너 */
+.quest-header-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+
+/* 맵명+상태 통합 영역 */
+.quest-map-status-group {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 4px;
+}
+
+/* 세부 영역 컨테이너 */
+.quest-details-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+
+/* 각 박스별 구체적 스타일 */
+/* 1. 퀘스트명 박스 */
+.quest-name-section.quest-box {
+    min-height: 30px;
+    padding: 6px 8px;
+    align-items: flex-start;
+}
+
+/* 2. 맵명 박스 */
+.quest-map-section.quest-box {
+    justify-content: center;
+    min-height: 26px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+/* 3. 상태 박스 */
+.quest-status-section.quest-box {
+    justify-content: center;
+    gap: 4px;
+    min-height: 26px;
+}
+
+/* 4. 위키 박스 */
+.quest-wiki-section.quest-box {
+    justify-content: center;
+    min-height: 24px;
+}
+
+/* 5. 필수 여부 박스 */
+.quest-requirements-section.quest-box {
+    justify-content: center;
+    min-height: 24px;
+}
+
+
+/* 각 박스 내부 요소 스타일 */
+/* 1. 퀘스트명 */
+.quest-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* 2. 맵명 */
+.quest-map {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0D7377;
+    background: rgba(13, 115, 119, 0.2);
+    padding: 4px 8px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+/* 3. 상태 */
+.status-icon {
+    font-size: 11px;
+    color: #0D7377;
+}
+
+.status-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+/* 4. 위키 */
+.wiki-content {
+    font-size: 12px;
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+/* 위키 링크 스타일 */
+.wiki-link {
+    text-decoration: none;
+    color: #4CAF50;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.wiki-link:hover {
+    color: #66BB6A;
+    text-decoration: underline;
+}
+
+.wiki-link:active {
+    color: #388E3C;
+}
+
+/* 위키 정보 없음 상태 */
+.wiki-disabled {
+    color: #888888;
+    cursor: not-allowed;
+}
+
+/* 5. 필수 여부 */
+.requirements-content {
+    font-size: 12px;
+    font-weight: 500;
+    color: #e0e0e0;
+    margin-right: 12px;
+}
+
+.requirements-content:last-child {
+    margin-right: 0;
+}
+
+.requirement-icon {
+    color: #0D7377;
+    font-size: 11px;
+}
+
+/* 6. 목표 영역 (박스 스타일 포함) */
+.objectives-list.quest-box {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 40px;
+    gap: 2px;
+}
+
+.objective-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 6px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+}
+
+.objective-item:hover {
+    background: rgba(13, 115, 119, 0.08);
+    border-left-color: rgba(13, 115, 119, 0.3);
+}
+
+.objective-item.completed {
+    background: rgba(13, 115, 119, 0.15);
+    border-left-color: #0D7377;
+}
+
+.objective-item input[type="checkbox"] {
+    margin: 0;
+    margin-top: 1px;
+    transform: scale(0.9);
+    accent-color: #0D7377;
+    cursor: pointer;
+}
+
+.objective-label {
+    font-size: 15px;
+    color: #e0e0e0;
+    line-height: 1.3;
+    cursor: pointer;
+    flex: 1;
+}
+
+.objective-item.completed .objective-label {
+    color: #0D7377;
+}
+
+.no-objectives {
+    font-size: 12px;
+    color: #888888;
+    text-align: center;
+    padding: 8px;
+}
+
+
+.objectives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.objective-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 6px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+}
+
+.objective-item:hover {
+    background: rgba(13, 115, 119, 0.08);
+    border-left-color: rgba(13, 115, 119, 0.3);
+}
+
+.objective-item.completed {
+    background: rgba(13, 115, 119, 0.15);
+    border-left-color: #0D7377;
+}
+
+.objective-item input[type="checkbox"] {
+    margin: 0;
+    margin-top: 1px;
+    transform: scale(0.9);
+    accent-color: #0D7377;
+    cursor: pointer;
+}
+
+.objective-label {
+    font-size: 15px;
+    color: #e0e0e0;
+    line-height: 1.3;
+    cursor: pointer;
+    flex: 1;
+}
+
+.objective-item.completed .objective-label {
+    color: #0D7377;
+}
+
+.no-objectives {
+    font-size: 12px;
+    color: #888888;
+    text-align: center;
+    padding: 8px;
+}
+
+/* 우측 영역 요소들 */
+.trader-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trader-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #0D7377;
+    object-fit: cover;
+    transition: all 0.2s ease;
+}
+
+.trader-image:hover {
+    border-color: #0A5D61;
+    transform: scale(1.03);
+}
+
+.trader-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e0e0e0;
+    text-align: center;
+}
+
+/* 일괄 완료 버튼 */
+.quest-complete-btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-width: 120px;
+    text-transform: uppercase;
+}
+
+.quest-complete-btn.btn-available {
+    background-color: #0D7377;
+    color: white;
+    box-shadow: 0 2px 4px rgba(13, 115, 119, 0.3);
+}
+
+.quest-complete-btn.btn-available:hover {
+    background-color: #0A5D61;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(13, 115, 119, 0.4);
+}
+
+.quest-complete-btn.btn-active {
+    background-color: #28a745;
+    color: white;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.quest-complete-btn.btn-active:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+}
+
+.quest-complete-btn.btn-completed {
+    background-color: #6c757d;
+    color: white;
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+}
+
+.quest-complete-btn.btn-completed:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.quest-complete-btn.btn-locked {
+    background-color: #666666;
+    color: #999999;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* 반응형 대응 */
+@media (max-width: 1024px) {
+    .quest-main-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+    }
+    
+    .quest-left-area {
+        border-right: none;
+        border-bottom: 1px solid #404040;
+        padding: 8px;
+    }
+    
+    .quest-right-area {
+        padding: 8px;
+    }
+    
+    /* 6개 박스 모바일 최적화 */
+    .quest-box {
+        padding: 6px;
+        margin-bottom: 4px;
+    }
+    
+    .quest-name-section.quest-box {
+        min-height: 32px;
+        padding: 8px;
+    }
+    
+    .quest-map-section.quest-box,
+    .quest-status-section.quest-box {
+        min-height: 28px;
+    }
+    
+    .quest-wiki-section.quest-box,
+    .quest-requirements-section.quest-box {
+        min-height: 24px;
+    }
+    
+    .objectives-list.quest-box {
+        min-height: 50px;
+        padding: 8px;
+    }
+    
+    .trader-image {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .quest-complete-btn {
+        min-width: 80px;
+        padding: 5px 10px;
+        font-size: 10px;
+    }
+}
+
+/* 상태별 색상 */
+.quest-status .status-icon {
+    color: #888888;
+}
+
+.quest-card[data-status="completed"] .quest-status-section .status-icon {
+    color: #000000;
+}
+
+.quest-card[data-status="active"] .quest-status-section .status-icon {
+    color: #0D7377;
+}
+
+.quest-card[data-status="available"] .quest-status-section .status-icon {
+    color: #ffffff;
+}
+
+.quest-card[data-status="locked"] .quest-status-section .status-icon {
+    color: #dc3545;
+}
+
+/* 메시지 스타일 */
+.no-quests-message,
+.error-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #888888;
+    font-size: 16px;
+}
+
+.error-message p {
+    margin-bottom: 16px;
+    color: #dc3545;
+}
+
+.error-message .btn {
+    padding: 10px 20px;
+    background-color: #0D7377;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.error-message .btn:hover {
+    background-color: #0A5D61;
+}
+
+/* 페이지네이션 */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding: 16px 0;
+    border-top: 1px solid #404040;
+}
+
+.pagination-info {
+    color: #888888;
+    font-size: 14px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background-color: #3A3A3A;
+    color: #e0e0e0;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: #4A4A4A;
+    border-color: #0D7377;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 8px;
+}
+
+.page-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3A3A3A;
+    color: #e0e0e0;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+    background-color: #4A4A4A;
+    border-color: #0D7377;
+}
+
+.page-btn.active {
+    background-color: #0D7377;
+    border-color: #0D7377;
+    color: white;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+    
+    .filter-group {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    
+    .filter-select,
+    .search-input {
+        min-width: 100px;
+        flex: 1;
+    }
+    
+    .quest-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .quest-status-section,
+    .quest-trader-section {
+        align-self: flex-end;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+/* 진행 불가 사유 영역 */
+.quest-unavailable-reasons {
+    background: rgba(220, 53, 69, 0.15) !important;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.unavailable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.unavailable-item {
+    font-size: 14px;
+    color: #dc3545;
+    padding: 2px 0;
+    opacity: 0.9;
+}
+
+/* 목표 영역 비활성화 상태 */
+.objectives-list.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.objectives-list.disabled .objective-item {
+    opacity: 0.6;
+}
+
+.objectives-list.disabled input[type="checkbox"] {
+    cursor: not-allowed;
+}
+
+.objectives-list.disabled .objective-label {
+    color: #888888;
+    cursor: not-allowed;
+}

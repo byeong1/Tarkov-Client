@@ -1,0 +1,54 @@
+<div class="section-header">
+    <h1>퀘스트</h1>
+    <div class="header-actions">
+        <div class="filter-group">
+            <select id="questTypeFilter" class="filter-select">
+                <option value="all">전체</option>
+                <option value="kappa">카파</option>
+                <option value="lightkeeper">등대지기</option>
+            </select>
+            <select id="traderFilter" class="filter-select">
+                <option value="all">모든 상인</option>
+            </select>
+            <select id="mapFilter" class="filter-select">
+                <option value="all">모든 맵</option>
+            </select>
+            <select id="statusFilter" class="filter-select">
+                <option value="all">모든 상태</option>
+                <option value="available">진행 가능</option>
+                <option value="active">진행 중</option>
+                <option value="completed">완료됨</option>
+                <option value="locked">진행 불가</option>
+            </select>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="퀘스트 검색..." class="search-input">
+        </div>
+    </div>
+</div>
+
+<div class="quests-container">
+    <div class="loading-message" id="questsLoading">퀘스트 데이터를 불러오는 중...</div>
+    <div class="quests-list" id="questsList"></div>
+    
+    <!-- 페이지네이션 컨테이너 -->
+    <div class="pagination-container" id="paginationContainer" style="display: none;">
+        <div class="pagination-info">
+            <span id="paginationInfo">1-10 / 503개 퀘스트</span>
+        </div>
+        <div class="pagination-controls">
+            <button class="btn btn-secondary pagination-btn" id="prevPageBtn" disabled>
+                <span class="btn-icon">◀</span>
+                <span class="btn-text">이전</span>
+            </button>
+            <div class="page-numbers" id="pageNumbers">
+                <!-- 페이지 번호들이 동적으로 생성됨 -->
+            </div>
+            <button class="btn btn-secondary pagination-btn" id="nextPageBtn">
+                <span class="btn-text">다음</span>
+                <span class="btn-icon">▶</span>
+            </button>
+        </div>
+    </div>
+</div>
+

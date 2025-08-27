@@ -699,5 +699,130 @@ namespace TarkovClient.Constants
                         } catch { }
                     })();
                 ";
+
+        /// <summary>
+        /// TarkovTracker 페이지에 번역 버튼을 추가하는 스크립트 (기본 버전)
+        /// </summary>
+        public const string ADD_TARKOVTRACKER_TRANSLATE_BUTTON =
+            @"
+                (function() {
+                    'use strict';
+                    
+                    let translateButton = null;
+                    
+                    // 번역 버튼 생성
+                    function createTranslateButton() {
+                        if (translateButton) return;
+                        
+                        translateButton = document.createElement('button');
+                        translateButton.id = 'tarkov-tracker-translate-btn';
+                        translateButton.innerHTML = '번역 준비 중';
+                        translateButton.style.cssText = `
+                            position: fixed !important;
+                            top: 20px !important;
+                            right: 20px !important;
+                            z-index: 10000 !important;
+                            background: #666666 !important;
+                            color: white !important;
+                            border: 2px solid #888888 !important;
+                            border-radius: 6px !important;
+                            padding: 8px 16px !important;
+                            font-size: 14px !important;
+                            font-weight: bold !important;
+                            cursor: not-allowed !important;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+                            transition: all 0.2s ease !important;
+                            font-family: 'Segoe UI', Arial, sans-serif !important;
+                            user-select: none !important;
+                            outline: none !important;
+                        `;
+                        
+                        // 클릭 이벤트 (현재는 알림만 표시)
+                        translateButton.addEventListener('click', function() {
+                            alert('번역 기능이 준비 중입니다.');
+                        });
+                        
+                        document.body.appendChild(translateButton);
+                        console.log('번역 버튼 생성 완료 (기본 버전)');
+                    }
+                    
+                    // 페이지 로드 완료 후 버튼 생성
+                    function initializeTranslateFeature() {
+                        try {
+                            console.log('TarkovTracker 번역 기능 초기화 시작');
+                            
+                            // 페이지가 TarkovTracker인지 확인
+                            if (!window.location.hostname.includes('tarkovtracker.io')) {
+                                console.log('TarkovTracker 사이트가 아닙니다. 번역 기능을 건너뜁니다.');
+                                return;
+                            }
+                            
+                            setTimeout(createTranslateButton, 1000);
+                            console.log('번역 버튼 생성 예약 완료');
+                            
+                        } catch (error) {
+                            console.error('번역 기능 초기화 실패:', error);
+                        }
+                    }
+                    
+                    // 페이지 로드 상태에 따른 초기화
+                    if (document.readyState === 'complete') {
+                        initializeTranslateFeature();
+                    } else {
+                        window.addEventListener('load', initializeTranslateFeature);
+                        document.addEventListener('DOMContentLoaded', initializeTranslateFeature);
+                    }
+                    
+                    // DOM 변경 감지하여 버튼 유지
+                    const observer = new MutationObserver((mutations) => {
+                        try {
+                            // 번역 버튼이 사라졌을 때 재생성
+                            if (!document.getElementById('tarkov-tracker-translate-btn') && 
+                                document.body && 
+                                document.readyState === 'complete') {
+                                
+                                let shouldRecreate = false;
+                                mutations.forEach(mutation => {
+                                    if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
+                                        for (let node of mutation.removedNodes) {
+                                            if (node.id === 'tarkov-tracker-translate-btn') {
+                                                shouldRecreate = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                });
+                                
+                                if (shouldRecreate || !translateButton) {
+                                    console.log('번역 버튼 재생성 필요');
+                                    setTimeout(() => {
+                                        if (!document.getElementById('tarkov-tracker-translate-btn')) {
+                                            translateButton = null;
+                                            createTranslateButton();
+                                        }
+                                    }, 1000);
+                                }
+                            }
+                        } catch (error) {
+                            console.warn('DOM 변경 감지 중 에러:', error);
+                        }
+                    });
+                    
+                    // body가 준비된 후 observer 시작
+                    if (document.body) {
+                        observer.observe(document.body, {
+                            childList: true,
+                            subtree: true
+                        });
+                    } else {
+                        document.addEventListener('DOMContentLoaded', () => {
+                            observer.observe(document.body, {
+                                childList: true,
+                                subtree: true
+                            });
+                        });
+                    }
+                    
+                })();";
     }
 }

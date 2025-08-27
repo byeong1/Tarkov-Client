@@ -51,4 +51,10 @@
   <ItemGroup>
     <Resource Include="Resources\korea.ico" />
   </ItemGroup>
+  <!-- HTML, CSS, JavaScript 파일들을 빌드 출력에 포함 -->
+  <ItemGroup>
+    <Content Include="src\Webs\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

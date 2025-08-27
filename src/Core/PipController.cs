@@ -17,8 +17,7 @@ namespace TarkovClient
         private bool _isActive = false;
         private string _currentMap = null;
 
-        // 최상단 유지를 위한 타이머
-        private DispatcherTimer _topmostTimer;
+        // 최상단 유지를 위한 타이머 (현재 사용 안함)
         private readonly object _timerLock = new object();
 
         // 자동 복원 기능을 위한 상태 추적

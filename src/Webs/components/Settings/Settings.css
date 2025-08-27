@@ -1,0 +1,246 @@
+/* Settings Component Specific Styles */
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 800px;
+}
+
+.settings-group {
+    background-color: #2A2A2A;
+    border: 1px solid #404040;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.settings-group h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #404040;
+}
+
+.setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.setting-item:last-child {
+    margin-bottom: 0;
+}
+
+.setting-item label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #e0e0e0;
+}
+
+.checkbox-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.checkbox-item .checkbox-common {
+    margin: 0;
+}
+
+.setting-description {
+    font-size: 13px;
+    color: #888888;
+    margin: 4px 0 12px 0;
+    line-height: 1.4;
+}
+
+.data-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    font-size: 14px;
+    color: #cccccc;
+}
+
+/* 위험 영역 스타일 */
+.danger-zone {
+    border-color: rgba(220, 53, 69, 0.3);
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.danger-zone h3 {
+    color: #dc3545;
+    border-bottom-color: rgba(220, 53, 69, 0.2);
+}
+
+/* 저장 상태 표시 */
+.save-status {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s ease;
+}
+
+.save-status.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.save-status.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.save-status.error {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* 설정 섹션 애니메이션 */
+.settings-group {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.settings-group:nth-child(1) { animation-delay: 0.1s; }
+.settings-group:nth-child(2) { animation-delay: 0.2s; }
+.settings-group:nth-child(3) { animation-delay: 0.3s; }
+.settings-group:nth-child(4) { animation-delay: 0.4s; }
+.settings-group:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 설정 항목 호버 효과 */
+.setting-item {
+    transition: background-color 0.2s ease;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 8px -12px;
+}
+
+.setting-item:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* 데이터 크기 표시 */
+.data-size-large {
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+
+.data-size-warning {
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+/* 토글 스위치 스타일 (향후 사용) */
+.toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 24px;
+    background-color: #555555;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.toggle-switch.active {
+    background-color: #0D7377;
+}
+
+.toggle-switch::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+.toggle-switch.active::before {
+    transform: translateX(26px);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .settings-container {
+        gap: 24px;
+    }
+    
+    .settings-group {
+        padding: 20px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+    
+    .header-actions {
+        justify-content: stretch;
+        gap: 12px;
+    }
+    
+    .header-actions .btn {
+        flex: 1;
+    }
+    
+    .data-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .save-status {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+}
+
+/* 접근성 개선 */
+.setting-item:focus-within {
+    background-color: rgba(13, 115, 119, 0.1);
+    outline: 2px solid rgba(13, 115, 119, 0.3);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .settings-group {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    
+    .save-status {
+        transition: none;
+    }
+    
+    .toggle-switch,
+    .toggle-switch::before {
+        transition: none;
+    }
+}

@@ -1,0 +1,112 @@
+<div class="section-header">
+    <h1>설정</h1>
+    <div class="header-actions">
+        <button class="btn btn-secondary" id="resetDataBtn">데이터 초기화</button>
+        <button class="btn btn-primary" id="saveSettingsBtn">설정 저장</button>
+    </div>
+</div>
+
+<div class="settings-container">
+    <div class="settings-group">
+        <h3>사용자 프로필</h3>
+        <div class="setting-item">
+            <label for="playerLevelInput">플레이어 레벨</label>
+            <input type="number" id="playerLevelInput" min="1" max="79" value="1" class="input-common">
+        </div>
+        <div class="setting-item">
+            <label for="playStyleSelect">플레이 스타일</label>
+            <select id="playStyleSelect" class="select-common">
+                <option value="pve">PVE</option>
+                <option value="pvp">PVP</option>
+            </select>
+        </div>
+        <div class="setting-item">
+            <label for="playerNameInput">플레이어 이름 (선택사항)</label>
+            <input type="text" id="playerNameInput" placeholder="플레이어 이름" class="input-common">
+        </div>
+    </div>
+    
+    <div class="settings-group">
+        <h3>표시 옵션</h3>
+        <div class="setting-item checkbox-item">
+            <label class="checkbox-common">
+                <input type="checkbox" id="hideCompletedCheck">
+                <span>완료된 퀘스트 숨기기</span>
+            </label>
+        </div>
+        <div class="setting-item checkbox-item">
+            <label class="checkbox-common">
+                <input type="checkbox" id="showOnlyAvailableCheck" checked>
+                <span>진행 가능한 퀘스트만 표시</span>
+            </label>
+        </div>
+        <div class="setting-item checkbox-item">
+            <label class="checkbox-common">
+                <input type="checkbox" id="autoSyncCheck" checked>
+                <span>자동 데이터 동기화</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <h3>알림 설정</h3>
+        <div class="setting-item checkbox-item">
+            <label class="checkbox-common">
+                <input type="checkbox" id="questCompleteNotificationCheck" checked>
+                <span>퀘스트 완료 알림</span>
+            </label>
+        </div>
+        <div class="setting-item checkbox-item">
+            <label class="checkbox-common">
+                <input type="checkbox" id="levelUpNotificationCheck" checked>
+                <span>레벨 업 알림</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <h3>데이터 관리</h3>
+        <div class="setting-item">
+            <label>저장된 데이터 크기</label>
+            <div class="data-info">
+                <span id="dataSize">계산 중...</span>
+                <button class="btn btn-sm btn-secondary" id="calculateDataSizeBtn">다시 계산</button>
+            </div>
+        </div>
+        <div class="setting-item">
+            <label>마지막 동기화</label>
+            <div class="data-info">
+                <span id="lastSyncTime">없음</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-group danger-zone">
+        <h3>위험 영역</h3>
+        <div class="setting-item">
+            <label>모든 데이터 초기화</label>
+            <p class="setting-description">
+                모든 퀘스트 진행 상황, 설정, 프로필 데이터가 삭제됩니다. 
+                이 작업은 되돌릴 수 없습니다.
+            </p>
+            <button class="btn btn-danger" id="resetAllDataBtn">전체 데이터 초기화</button>
+        </div>
+    </div>
+</div>
+
+<!-- 데이터 초기화 확인 모달 -->
+<div class="modal-overlay" id="resetConfirmModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 class="modal-title">데이터 초기화 확인</h2>
+        </div>
+        <div class="modal-body">
+            <p>정말로 모든 데이터를 초기화하시겠습니까?</p>
+            <p class="text-danger">이 작업은 되돌릴 수 없습니다.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelResetBtn">취소</button>
+            <button class="btn btn-danger" id="confirmResetBtn">초기화</button>
+        </div>
+    </div>
+</div>

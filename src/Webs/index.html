@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타르코프 트래커 (Tarkov Tracker)</title>
+    <!-- 전역 CSS 로드 -->
+    <link rel="stylesheet" href="quest.css">
+    <link rel="stylesheet" href="Common/css/global.css">
+</head>
+<body>
+    <!-- 앱 레이아웃 -->
+    <div class="app-container">
+        <!-- 상단 헤더 -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle" title="사이드바 토글">
+                    <span class="toggle-icon">☰</span>
+                </button>
+            </div>
+            <div class="header-center">
+                <h1 class="app-title">타르코프 트래커 (Tarkov Tracker)</h1>
+                <h5> - with CrowsGear(byeong1)</h5>
+            </div>
+            <div class="header-right">
+                <!-- 향후 추가 기능을 위한 공간 -->
+            </div>
+        </header>
+
+        <!-- 메인 레이아웃 (사이드바 + 콘텐츠) -->
+        <div class="main-layout">
+            <!-- 좌측 사이드바 -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <!-- 프로필 정보를 상단으로 이동 -->
+                    <div class="profile-info">
+                        <!-- 레벨 설정 컨트롤 -->
+                        <div class="level-control">
+                            <label class="level-label">플레이어 레벨</label>
+                            <div class="level-input-group">
+                                <button class="level-btn minus" id="levelMinusBtn">-</button>
+                                <input type="number" id="sidebarPlayerLevel" min="1" max="79" value="1" class="level-input">
+                                <button class="level-btn plus" id="levelPlusBtn">+</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 통계 정보 -->
+                        <div class="profile-stats">
+                            완료: <span id="completedTasks">-</span> / <span id="totalTasks">-</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- 네비게이션 메뉴 -->
+                <nav class="sidebar-nav">
+                    <div class="nav-item active" data-route="dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">대시보드</span>
+                    </div>
+                    <div class="nav-item" data-route="quest">
+                        <span class="nav-icon">📝</span>
+                        <span class="nav-text">퀘스트</span>
+                    </div>
+                    <div class="nav-item" data-route="hideout">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">은신처</span>
+                    </div>
+                    <div class="nav-item" data-route="item">
+                        <span class="nav-icon">📦</span>
+                        <span class="nav-text">필수 아이템</span>
+                    </div>
+                    <div class="nav-item" data-route="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">설정</span>
+                    </div>
+                </nav>
+            
+                <!-- 사이드바 하단 영역 (비워둠) -->
+                <div class="sidebar-footer">
+                </div>
+            </aside>
+            
+            <!-- 메인 콘텐츠 영역 (동적 로딩) -->
+            <main class="main-content" id="app-content">
+                <!-- 컴포넌트들이 동적으로 로드될 영역 -->
+            </main>
+        </div>
+    </div>
+
+    <!-- Core modules (순서대로 로드) -->
+    <script src="Common/javascript/LocalStorageManager.js"></script>
+    <script src="Common/javascript/QuestManager.js"></script>
+    <script src="Common/javascript/Pagination.js"></script>
+    
+    <!-- 전역 JavaScript 로드 -->
+    <script src="Common/javascript/utils.js"></script>
+    <script src="router/index.js"></script>
+    <script src="index.js"></script>
+
+    <!-- WebView2 통신 설정 -->
+    <script>
+        // C#에서 온 메시지 처리
+        function handleMessageFromCSharp(event) {
+            console.log('C#에서 메시지 수신:', event.data);
+            
+            try {
+                const message = JSON.parse(event.data);
+                
+                switch (message.type) {
+                    case 'QUEST_UPDATE':
+                        // 퀘스트 업데이트 처리
+                        if (window.currentComponent && window.currentComponent.handleQuestUpdate) {
+                            window.currentComponent.handleQuestUpdate(message.data);
+                        }
+                        break;
+                    case 'SYNC_REQUEST':
+                        if (window.currentComponent && window.currentComponent.syncData) {
+                            window.currentComponent.syncData();
+                        }
+                        break;
+                    default:
+                        console.log('알 수 없는 메시지 타입:', message.type);
+                }
+            } catch (error) {
+                console.error('메시지 파싱 오류:', error);
+            }
+        }
+
+        // C#으로 메시지 전송
+        function sendMessageToCSharp(type, data) {
+            if (window.chrome && window.chrome.webview) {
+                const message = {
+                    type: type,
+                    data: data,
+                    timestamp: new Date().toISOString()
+                };
+                
+                window.chrome.webview.postMessage(JSON.stringify(message));
+            } else {
+                console.warn('WebView2 통신 환경이 아닙니다.');
+            }
+        }
+
+        // WebView2 통신 설정
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', handleMessageFromCSharp);
+        }
+
+        // 전역 객체로 노출 (C#에서 호출 가능)
+        window.TarkovTracker = {
+            syncData: () => {
+                if (window.currentComponent && window.currentComponent.syncData) {
+                    window.currentComponent.syncData();
+                }
+            },
+            navigateTo: (route) => {
+                if (window.router) {
+                    window.router.navigate(route);
+                }
+            },
+            toggleSidebar: () => {
+                const appContainer = document.querySelector('.app-container');
+                if (appContainer) {
+                    appContainer.classList.toggle('sidebar-hidden');
+                }
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<div class="section-header">
+    <h1>대시보드</h1>
+    <div class="header-actions">
+        <button class="btn btn-primary" id="syncButton">
+            <span class="btn-icon">🔄</span>
+            데이터 동기화
+        </button>
+    </div>
+</div>
+
+<!-- 대시보드 카드들 -->
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>완료된 퀘스트</h3>
+            <span class="card-icon">✅</span>
+        </div>
+        <div class="card-content">
+            <div class="stat-number" id="dashCompletedTasks">0</div>
+            <div class="stat-label">개 완료</div>
+        </div>
+    </div>
+    
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>진행 중인 목표</h3>
+            <span class="card-icon">🎯</span>
+        </div>
+        <div class="card-content">
+            <div class="stat-number" id="dashActiveObjectives">0</div>
+            <div class="stat-label">개 진행 중</div>
+        </div>
+    </div>
+    
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>필수 아이템</h3>
+            <span class="card-icon">📦</span>
+        </div>
+        <div class="card-content">
+            <div class="stat-number" id="dashRequiredItems">0</div>
+            <div class="stat-label">개 필요</div>
+        </div>
+    </div>
+</div>
+
+<!-- 최근 활동 -->
+<div class="recent-activity">
+    <h3>최근 활동</h3>
+    <div class="activity-list" id="recentActivityList">
+        <div class="activity-item">
+            <span class="activity-icon">🔄</span>
+            <div class="activity-content">
+                <div class="activity-text">데이터를 동기화하려면 "데이터 동기화" 버튼을 클릭하세요</div>
+                <div class="activity-time">시작하기</div>
+            </div>
+        </div>
+    </div>
+</div>

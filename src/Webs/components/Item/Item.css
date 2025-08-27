@@ -1,0 +1,103 @@
+/* Item Component Specific Styles */
+
+.placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #2A2A2A;
+    border: 1px solid #404040;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.placeholder-icon {
+    font-size: 72px;
+    margin-bottom: 24px;
+    opacity: 0.6;
+}
+
+.placeholder-content h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin: 0 0 12px 0;
+}
+
+.placeholder-content p {
+    font-size: 16px;
+    color: #888888;
+    margin: 0 0 32px 0;
+    line-height: 1.5;
+}
+
+.feature-preview {
+    background-color: rgba(13, 115, 119, 0.1);
+    border: 1px solid rgba(13, 115, 119, 0.2);
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.feature-preview h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0D7377;
+    margin: 0 0 16px 0;
+}
+
+.feature-preview ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-preview li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #cccccc;
+    margin-bottom: 8px;
+    padding-left: 24px;
+    position: relative;
+}
+
+.feature-preview li:before {
+    content: '•';
+    color: #0D7377;
+    font-size: 20px;
+    position: absolute;
+    left: 0;
+}
+
+.feature-preview li:last-child {
+    margin-bottom: 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .placeholder-content {
+        padding: 40px 16px;
+    }
+    
+    .placeholder-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+    
+    .placeholder-content h3 {
+        font-size: 20px;
+    }
+    
+    .feature-preview {
+        padding: 20px;
+    }
+    
+    .feature-preview h4 {
+        font-size: 16px;
+    }
+}
