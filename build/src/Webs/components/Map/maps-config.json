@@ -1,0 +1,275 @@
+{
+  "maps": {
+    "factory": {
+      "displayName": "Factory",
+      "displayNameKo": "팩토리",
+      "bounds": {
+        "gameWorld": {
+          "minX": -50,
+          "maxX": 50,
+          "minZ": -50,
+          "maxZ": 50
+        },
+        "mapImage": {
+          "width": 1024,
+          "height": 1024,
+          "minX": -512,
+          "maxX": 512,
+          "minZ": -512,
+          "maxZ": 512
+        }
+      },
+      "transformation": {
+        "scale": {
+          "x": 10.24,
+          "z": 10.24
+        },
+        "offset": {
+          "x": 0,
+          "y": 0
+        },
+        "rotation": 0,
+        "flipY": true
+      },
+      "defaultView": {
+        "center": [0, 0],
+        "zoom": 2
+      }
+    },
+    "customs": {
+      "displayName": "Customs",
+      "displayNameKo": "커스텀",
+      "bounds": {
+        "gameWorld": {
+          "minX": -500,
+          "maxX": 500,
+          "minZ": -500,
+          "maxZ": 500
+        },
+        "mapImage": {
+          "width": 2048,
+          "height": 2048,
+          "minX": -1024,
+          "maxX": 1024,
+          "minZ": -1024,
+          "maxZ": 1024
+        }
+      },
+      "transformation": {
+        "scale": {
+          "x": 2.048,
+          "z": 2.048
+        },
+        "offset": {
+          "x": 0,
+          "y": 0
+        },
+        "rotation": 0,
+        "flipY": true
+      },
+      "defaultView": {
+        "center": [0, 0],
+        "zoom": 1
+      }
+    },
+    "shoreline": {
+      "displayName": "Shoreline",
+      "displayNameKo": "해안선",
+      "bounds": {
+        "gameWorld": {
+          "minX": -800,
+          "maxX": 800,
+          "minZ": -800,
+          "maxZ": 800
+        },
+        "mapImage": {
+          "width": 2048,
+          "height": 2048,
+          "minX": -1024,
+          "maxX": 1024,
+          "minZ": -1024,
+          "maxZ": 1024
+        }
+      },
+      "transformation": {
+        "scale": {
+          "x": 1.28,
+          "z": 1.28
+        },
+        "offset": {
+          "x": 0,
+          "y": 0
+        },
+        "rotation": 0,
+        "flipY": true
+      },
+      "defaultView": {
+        "center": [0, 0],
+        "zoom": 1
+      }
+    },
+    "woods": {
+      "displayName": "Woods", 
+      "displayNameKo": "우드",
+      "bounds": {
+        "gameWorld": {
+          "minX": -600,
+          "maxX": 600,
+          "minZ": -600,
+          "maxZ": 600
+        },
+        "mapImage": {
+          "width": 2048,
+          "height": 2048,
+          "minX": -1024,
+          "maxX": 1024,
+          "minZ": -1024,
+          "maxZ": 1024
+        }
+      },
+      "transformation": {
+        "scale": {
+          "x": 1.706,
+          "z": 1.706
+        },
+        "offset": {
+          "x": 0,
+          "y": 0
+        },
+        "rotation": 0,
+        "flipY": true
+      },
+      "defaultView": {
+        "center": [0, 0],
+        "zoom": 1
+      }
+    },
+    "interchange": {
+      "displayName": "Interchange",
+      "displayNameKo": "인터체인지",
+      "bounds": {
+        "gameWorld": {
+          "minX": -400,
+          "maxX": 400,
+          "minZ": -400,
+          "maxZ": 400
+        },
+        "mapImage": {
+          "width": 2048,
+          "height": 2048,
+          "minX": -1024,
+          "maxX": 1024,
+          "minZ": -1024,
+          "maxZ": 1024
+        }
+      },
+      "transformation": {
+        "scale": {
+          "x": 2.56,
+          "z": 2.56
+        },
+        "offset": {
+          "x": 0,
+          "y": 0
+        },
+        "rotation": 0,
+        "flipY": true
+      },
+      "defaultView": {
+        "center": [0, 0],
+        "zoom": 1
+      }
+    },
+    "reserve": {
+      "displayName": "Reserve",
+      "displayNameKo": "리저브",
+      "bounds": {
+        "gameWorld": {
+          "minX": -500,
+          "maxX": 500,
+          "minZ": -500,
+          "maxZ": 500
+        },
+        "mapImage": {
+          "width": 2048,
+          "height": 2048,
+          "minX": -1024,
+          "maxX": 1024,
+          "minZ": -1024,
+          "maxZ": 1024
+        }
+      },
+      "transformation": {
+        "scale": {
+          "x": 2.048,
+          "z": 2.048
+        },
+        "offset": {
+          "x": 0,
+          "y": 0
+        },
+        "rotation": 0,
+        "flipY": true
+      },
+      "defaultView": {
+        "center": [0, 0],
+        "zoom": 1
+      }
+    },
+    "labs": {
+      "displayName": "The Lab",
+      "displayNameKo": "연구소",
+      "bounds": {
+        "gameWorld": {
+          "minX": -200,
+          "maxX": 200,
+          "minZ": -200,
+          "maxZ": 200
+        },
+        "mapImage": {
+          "width": 1024,
+          "height": 1024,
+          "minX": -512,
+          "maxX": 512,
+          "minZ": -512,
+          "maxZ": 512
+        }
+      },
+      "transformation": {
+        "scale": {
+          "x": 2.56,
+          "z": 2.56
+        },
+        "offset": {
+          "x": 0,
+          "y": 0
+        },
+        "rotation": 0,
+        "flipY": true
+      },
+      "defaultView": {
+        "center": [0, 0],
+        "zoom": 2
+      }
+    }
+  },
+  "defaultMap": "factory",
+  "coordinateSystem": {
+    "type": "cartesian",
+    "origin": "center",
+    "yAxisDirection": "up",
+    "units": "meters"
+  },
+  "mapDetection": {
+    "patterns": {
+      "factory": ["factory", "завод"],
+      "customs": ["customs", "таможня"],
+      "shoreline": ["shoreline", "берег"],
+      "woods": ["woods", "лес"],
+      "interchange": ["interchange", "развязка"],
+      "reserve": ["reserve", "резерв"],
+      "labs": ["laboratory", "лаборатория", "lab"]
+    },
+    "fallback": "factory"
+  }
+}

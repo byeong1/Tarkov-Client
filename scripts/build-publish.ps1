@@ -23,6 +23,27 @@ if (-not (Test-Path "publish\TarkovClient.exe")) {
     exit 1
 }
 
+# 웹 자산 복사
+Write-Host "[INFO] Copying web assets..." -ForegroundColor Green
+
+$webSrcPath = "src\Webs"
+$webDestPath = "publish\src\Webs"
+
+try {
+    # 대상 디렉토리 생성
+    if (-not (Test-Path $webDestPath)) {
+        New-Item -Path $webDestPath -ItemType Directory -Force | Out-Null
+    }
+    
+    # 웹 자산 복사
+    Copy-Item -Path "$webSrcPath\*" -Destination $webDestPath -Recurse -Force
+    Write-Host "[SUCCESS] Web assets copied to $webDestPath" -ForegroundColor Green
+}
+catch {
+    Write-Host "[ERROR] Failed to copy web assets: $($_.Exception.Message)" -ForegroundColor Red
+    # 웹 자산 복사 실패는 치명적이지 않으므로 빌드 계속 진행
+}
+
 # Remove unnecessary files for deployment
 if (Test-Path "publish\*.pdb") {
     Write-Host "[INFO] Removing debug files (.pdb)..." -ForegroundColor Yellow

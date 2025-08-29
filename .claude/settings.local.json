@@ -16,9 +16,27 @@
       "WebFetch(domain:api.tarkov.dev)",
       "Bash(curl:*)",
       "Bash(find:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\pages\\map/**)",
+      "Read(C:\\Users\\qoqud\\code\\TarkovClient-vue/**)",
+      "Bash(yarn add:*)",
+      "Bash(yarn dev)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\features\\items/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\modules/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\features\\maps/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\pages\\map/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\modules/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\modules/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\modules/**)",
+      "Read(C:\\Users\\qoqud\\code\\tarkov-dev\\src\\modules/**)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "C:\\Users\\qoqud\\code\\TarkovClient-vue"
+    ]
   }
 }

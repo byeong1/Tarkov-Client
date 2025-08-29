@@ -1,0 +1,508 @@
+/* =============================================================================
+   Responsive Styles - 반응형 디자인 및 모바일 최적화
+   ============================================================================= */
+
+/* 태블릿 및 작은 데스크톱 */
+@media (max-width: 1024px) {
+    :root {
+        --panel-width: 280px;
+        --header-height: 48px;
+    }
+    
+    .panel-left,
+    .panel-right {
+        width: var(--panel-width);
+    }
+    
+    .top-controls {
+        gap: 10px;
+    }
+    
+    .top-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+    
+    .map-search {
+        width: 200px;
+        left: 280px;
+    }
+    
+    .map-legend {
+        min-width: 180px;
+        padding: 14px;
+    }
+}
+
+/* 태블릿 */
+@media (max-width: 768px) {
+    :root {
+        --panel-width: 100%;
+        --header-height: 50px;
+    }
+    
+    /* 패널을 전체 너비로 */
+    .panel-left,
+    .panel-right {
+        width: 100%;
+        height: calc(50vh - var(--header-height));
+        top: auto;
+        transform: translateY(100%);
+        transition: transform var(--transition-medium);
+    }
+    
+    .panel-left {
+        bottom: 50vh;
+        border-right: none;
+        border-top: 1px solid var(--border-light);
+    }
+    
+    .panel-right {
+        bottom: 0;
+        border-left: none;
+        border-top: 1px solid var(--border-light);
+    }
+    
+    .panel-left.visible,
+    .panel-right.visible {
+        transform: translateY(0);
+    }
+    
+    /* 패널 토글 버튼 위치 조정 */
+    .panel-left .panel-toggle {
+        top: -24px;
+        right: 50%;
+        transform: translateX(50%);
+        border-radius: 4px 4px 0 0;
+        border-bottom: none;
+    }
+    
+    .panel-right .panel-toggle {
+        top: -24px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 4px 4px 0 0;
+        border-bottom: none;
+    }
+    
+    /* 상단 컨트롤 조정 */
+    .panel-top {
+        padding: 0 15px;
+    }
+    
+    .top-controls {
+        gap: 8px;
+    }
+    
+    .top-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+    
+    /* 검색창 위치 */
+    .map-search {
+        top: 60px;
+        left: 20px;
+        width: calc(100vw - 40px);
+        max-width: 300px;
+    }
+    
+    /* 범례 위치 */
+    .map-legend {
+        top: 120px;
+        right: 20px;
+        left: 20px;
+        min-width: auto;
+        max-width: calc(100vw - 40px);
+    }
+    
+    /* 컨트롤 버튼들 크기 조정 */
+    .control-button {
+        padding: 10px 12px;
+        font-size: 11px;
+    }
+    
+    /* 좌표 표시 숨김 (공간 절약) */
+    .coordinate-display {
+        display: none;
+    }
+    
+    /* 통계 표시 조정 */
+    .map-stats {
+        bottom: 10px;
+        padding: 6px 12px;
+        font-size: 10px;
+        gap: 12px;
+    }
+    
+    /* 인포 패널 */
+    .info-panel {
+        top: auto;
+        bottom: 80px;
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+    :root {
+        --header-height: 44px;
+    }
+    
+    /* 헤더 높이 조정 */
+    .panel-top {
+        height: var(--header-height);
+        padding: 0 12px;
+    }
+    
+    .top-controls {
+        gap: 6px;
+    }
+    
+    .top-btn {
+        padding: 4px 8px;
+        font-size: 10px;
+        min-width: auto;
+    }
+    
+    /* 레벨 선택기 */
+    .level-selector select {
+        padding: 6px 24px 6px 8px;
+        font-size: 12px;
+        min-width: 100px;
+    }
+    
+    /* 패널 높이 조정 */
+    .panel-left,
+    .panel-right {
+        height: calc(45vh - var(--header-height));
+    }
+    
+    .panel-right {
+        bottom: 0;
+    }
+    
+    .panel-left {
+        bottom: 45vh;
+    }
+    
+    /* 패널 헤더 */
+    .panel-header {
+        padding: 12px 15px;
+    }
+    
+    .panel-title {
+        font-size: 14px;
+    }
+    
+    .panel-subtitle {
+        font-size: 11px;
+    }
+    
+    /* 패널 콘텐츠 */
+    .panel-section-header {
+        padding: 10px 15px;
+    }
+    
+    .panel-section-title {
+        font-size: 13px;
+    }
+    
+    .panel-section-content {
+        padding: 10px 15px;
+    }
+    
+    /* Tree 스타일 */
+    .tree-item {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .tree-children {
+        padding-left: 20px;
+        margin-left: 6px;
+    }
+    
+    /* 검색 */
+    .search-input {
+        padding: 8px 10px 8px 32px;
+        font-size: 12px;
+    }
+    
+    .search-icon {
+        left: 10px;
+        font-size: 14px;
+    }
+    
+    /* 필터 컨트롤 */
+    .filter-controls {
+        padding: 12px 15px;
+    }
+    
+    .filter-input {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+    
+    /* 지도 컨트롤 숨김/조정 */
+    .zoom-info {
+        display: none;
+    }
+    
+    .minimap-toggle {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    .fullscreen-control {
+        top: 15px;
+    }
+    
+    /* 범례 조정 */
+    .map-legend {
+        top: 70px;
+        padding: 12px;
+        font-size: 11px;
+    }
+    
+    .legend-title {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .legend-item {
+        margin-bottom: 6px;
+        font-size: 11px;
+    }
+    
+    .legend-icon {
+        width: 10px;
+        height: 10px;
+    }
+    
+    /* 토스트 알림 */
+    .toast {
+        bottom: 15px;
+        right: 15px;
+        left: 15px;
+        min-width: auto;
+        font-size: 12px;
+    }
+    
+    /* 에러 메시지 */
+    .error-message {
+        top: 15px;
+        right: 15px;
+        left: 15px;
+        max-width: none;
+        font-size: 12px;
+    }
+    
+    /* 로딩 스피너 */
+    .loading-text {
+        font-size: 14px;
+    }
+    
+    /* 컨텍스트 메뉴 */
+    .context-menu {
+        min-width: 140px;
+    }
+    
+    .context-menu-item {
+        padding: 10px 12px;
+        font-size: 11px;
+    }
+}
+
+/* 매우 작은 모바일 */
+@media (max-width: 360px) {
+    .top-btn {
+        padding: 3px 6px;
+        font-size: 9px;
+    }
+    
+    .level-selector select {
+        font-size: 11px;
+        min-width: 90px;
+    }
+    
+    .panel-title {
+        font-size: 13px;
+    }
+    
+    .panel-section-title {
+        font-size: 12px;
+    }
+    
+    .tree-item {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+    
+    .map-legend {
+        top: 60px;
+        padding: 10px;
+    }
+    
+    .legend-title {
+        font-size: 11px;
+    }
+    
+    .legend-item {
+        font-size: 10px;
+    }
+}
+
+/* 랜드스케이프 모드 (가로 화면) */
+@media (max-height: 500px) and (orientation: landscape) {
+    .panel-left,
+    .panel-right {
+        width: 300px;
+        height: calc(100vh - var(--header-height));
+        top: var(--header-height);
+        transform: translateX(-100%);
+    }
+    
+    .panel-left {
+        left: 0;
+        border-right: 1px solid var(--border-light);
+        border-top: none;
+        bottom: auto;
+    }
+    
+    .panel-right {
+        right: 0;
+        left: auto;
+        transform: translateX(100%);
+        border-left: 1px solid var(--border-light);
+        border-top: none;
+        bottom: auto;
+    }
+    
+    .panel-left.visible {
+        transform: translateX(0);
+    }
+    
+    .panel-right.visible {
+        transform: translateX(0);
+    }
+    
+    /* 패널 토글 버튼 원복 */
+    .panel-left .panel-toggle {
+        top: 50%;
+        right: -24px;
+        transform: translateY(-50%);
+        border-radius: 0 4px 4px 0;
+        border-left: none;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .panel-right .panel-toggle {
+        top: 50%;
+        left: -24px;
+        transform: translateY(-50%);
+        border-radius: 4px 0 0 4px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    /* 검색창과 범례 위치 조정 */
+    .map-search {
+        top: 15px;
+        left: 320px;
+        width: 200px;
+    }
+    
+    .map-legend {
+        top: 60px;
+        right: 320px;
+        left: auto;
+        width: 200px;
+    }
+}
+
+/* 고해상도 디스플레이 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .marker-icon {
+        border-width: 1px;
+    }
+    
+    .leaflet-control-zoom a {
+        border-width: 1px !important;
+    }
+}
+
+/* 다크모드 지원 (시스템 설정 감지) */
+@media (prefers-color-scheme: dark) {
+    /* 이미 다크 테마이므로 추가 조정 없음 */
+}
+
+/* 모션 감소 설정 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .loading-spinner {
+        animation: none;
+        border-top-color: var(--info-color);
+    }
+    
+    .panel-slide-in,
+    .panel-slide-out {
+        animation: none;
+    }
+}
+
+/* 터치 디바이스 최적화 */
+@media (pointer: coarse) {
+    .control-button,
+    .top-btn,
+    .panel-toggle,
+    .tree-item,
+    .context-menu-item {
+        min-height: 44px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    
+    .level-selector select {
+        min-height: 44px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    
+    .search-input,
+    .filter-input {
+        min-height: 44px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+}
+
+/* 프린트 스타일 */
+@media print {
+    .panel-left,
+    .panel-right,
+    .panel-top,
+    .loading-indicator,
+    .error-message,
+    .toast,
+    .context-menu {
+        display: none !important;
+    }
+    
+    #map {
+        width: 100% !important;
+        height: 100vh !important;
+        background: white !important;
+    }
+    
+    .leaflet-container {
+        background: white !important;
+    }
+}

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타르코프 지도 (Tarkov Map)</title>
+    
+    <!-- Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    
+    <!-- Map CSS -->
+    <link rel="stylesheet" href="Map.css">
+</head>
+<body>
+    <!-- 지도 메인 컨테이너 -->
+    <div id="tarkov-map-container" class="map-container">
+        <!-- 지도 영역 -->
+        <div id="map" class="leaflet-map"></div>
+        
+        <!-- 지도 컨트롤 -->
+        <div class="map-controls">
+            <div class="control-panel left">
+                <button id="zoom-in" class="control-btn" title="확대">
+                    <span>+</span>
+                </button>
+                <button id="zoom-out" class="control-btn" title="축소">
+                    <span>−</span>
+                </button>
+            </div>
+            
+            <div class="control-panel right">
+                <button id="layers-toggle" class="control-btn" title="레이어">
+                    <span>⛰️</span>
+                </button>
+                <button id="settings-toggle" class="control-btn" title="설정">
+                    <span>⚙️</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 상태 표시바 -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="label">좌표:</span>
+                <span id="current-coords">---, ---</span>
+            </div>
+            <div class="status-item">
+                <span class="label">맵:</span>
+                <span id="current-map">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span id="connection-status" class="status-indicator offline">
+                    ● 연결 대기중
+                </span>
+            </div>
+        </div>
+        
+        <!-- 레이어 설정 패널 -->
+        <div id="layer-panel" class="layer-panel" style="display: none;">
+            <div class="layer-header">
+                <h3>레이어 설정</h3>
+                <button class="close-btn" id="layer-close">&times;</button>
+            </div>
+            <div class="layer-options">
+                <label class="layer-option">
+                    <input type="checkbox" id="layer-grid" checked>
+                    <span>격자 표시</span>
+                </label>
+                <label class="layer-option">
+                    <input type="checkbox" id="layer-player" checked>
+                    <span>플레이어 마커</span>
+                </label>
+                <label class="layer-option">
+                    <input type="checkbox" id="layer-direction" checked>
+                    <span>방향 표시</span>
+                </label>
+                <label class="layer-option">
+                    <input type="checkbox" id="layer-loot">
+                    <span>아이템 위치</span>
+                </label>
+                <label class="layer-option">
+                    <input type="checkbox" id="layer-exits">
+                    <span>출구 위치</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- 설정 패널 -->
+        <div id="settings-panel" class="settings-panel" style="display: none;">
+            <div class="settings-header">
+                <h3>지도 설정</h3>
+                <button class="close-btn" id="settings-close">&times;</button>
+            </div>
+            
+            <div class="settings-content">
+                <!-- 표시 설정 -->
+                <div class="setting-group">
+                    <h4>표시 옵션</h4>
+                    <div class="setting-item">
+                        <label>플레이어 마커 크기</label>
+                        <input type="range" id="marker-size" min="12" max="32" value="16">
+                        <span id="marker-size-value">16px</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="show-direction" checked>
+                            방향 표시
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="show-coordinates" checked>
+                            좌표 표시
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 성능 설정 -->
+                <div class="setting-group">
+                    <h4>성능</h4>
+                    <div class="setting-item">
+                        <label>업데이트 주기</label>
+                        <select id="update-interval">
+                            <option value="100">10 FPS (100ms)</option>
+                            <option value="50" selected>20 FPS (50ms)</option>
+                            <option value="33">30 FPS (33ms)</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="smooth-movement" checked>
+                            부드러운 이동
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 맵 설정 -->
+                <div class="setting-group">
+                    <h4>맵 옵션</h4>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="auto-center" checked>
+                            자동 중앙 정렬
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="auto-zoom">
+                            자동 줌 조정
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-footer">
+                <button class="btn-primary" id="apply-settings">적용</button>
+                <button class="btn-secondary" id="reset-settings">초기화</button>
+            </div>
+        </div>
+        
+        <!-- 로딩 인디케이터 -->
+        <div id="loading-indicator" class="loading-indicator">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">지도 로딩 중...</div>
+        </div>
+        
+        <!-- 오류 메시지 -->
+        <div id="error-message" class="error-message" style="display: none;">
+            <div class="error-icon">⚠️</div>
+            <div class="error-text"></div>
+            <button class="error-close">&times;</button>
+        </div>
+    </div>
+
+    <!-- Leaflet.js JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    
+    <!-- Leaflet Rotated Marker Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-rotatedmarker@0.2.0/leaflet.rotatedMarker.min.js"></script>
+    
+    <!-- Coordinate System -->
+    <script src="CoordinateSystem.js"></script>
+    
+    <!-- Map JavaScript -->
+    <script src="Map.js"></script>
+    
+    <script>
+        // C#에서 호출 가능한 전역 객체 초기화
+        window.tarkovMap = null;
+        window.tarkovMapApp = null;
+
+        // DOM 로딩 완료 후 지도 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // 지도 애플리케이션 초기화
+                window.tarkovMapApp = new TarkovMapApplication('tarkov-map-container');
+                
+                // 초기화 완료 대기
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('지도 초기화 타임아웃'));
+                    }, 10000); // 10초 타임아웃
+
+                    const checkInit = () => {
+                        if (window.tarkovMapApp?.isInitialized) {
+                            clearTimeout(timeout);
+                            resolve();
+                        } else {
+                            setTimeout(checkInit, 100);
+                        }
+                    };
+                    checkInit();
+                });
+
+                console.log('지도 시스템 초기화 완료');
+                
+                // C#에 초기화 완료 알림
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'MAP_READY',
+                        timestamp: Date.now()
+                    }));
+                }
+
+            } catch (error) {
+                console.error('지도 초기화 실패:', error);
+                
+                // 오류 메시지 표시
+                showError('지도 초기화 실패: ' + error.message);
+                
+                // C#에 오류 알림
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'MAP_ERROR',
+                        data: {
+                            message: error.message,
+                            source: 'initialization',
+                            timestamp: Date.now()
+                        }
+                    }));
+                }
+            }
+        });
+
+        // 오류 메시지 표시 함수
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            const errorText = errorElement.querySelector('.error-text');
+            const loadingElement = document.getElementById('loading-indicator');
+            
+            loadingElement.style.display = 'none';
+            errorText.textContent = message;
+            errorElement.style.display = 'flex';
+        }
+
+        // C#에서 WebView2 메시지 수신 처리
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    
+                    if (window.tarkovMapApp && window.tarkovMapApp.isInitialized) {
+                        window.tarkovMapApp.handleWebViewMessage(message);
+                    } else {
+                        console.warn('지도 시스템이 아직 초기화되지 않음:', message);
+                    }
+                } catch (error) {
+                    console.error('WebView 메시지 처리 오류:', error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

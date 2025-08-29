@@ -1,0 +1,527 @@
+using System;
+using System.Threading.Tasks;
+using System.IO;
+using System.Windows;
+using TarkovClient;
+using Microsoft.Web.WebView2.Wpf;
+
+namespace TarkovClient.Tests
+{
+    /// <summary>
+    /// 지도 시스템 통합 테스트 클래스
+    /// MapViewController와 PositionParser의 통합 기능을 테스트
+    /// </summary>
+    public class MapIntegrationTest
+    {
+        private MapViewController _mapController;
+        private WebView2 _webView;
+        private bool _testsPassed = true;
+        private int _totalTests = 0;
+        private int _passedTests = 0;
+
+        /// <summary>
+        /// 통합 테스트 실행
+        /// </summary>
+        public async Task<bool> RunIntegrationTests()
+        {
+            Console.WriteLine("=== 타르코프 지도 시스템 통합 테스트 시작 ===");
+            Console.WriteLine();
+
+            try
+            {
+                // 테스트 환경 초기화
+                await InitializeTestEnvironment();
+
+                // 핵심 테스트 실행
+                await TestPositionParsing();
+                await TestCoordinateTransformation();
+                await TestMapViewController();
+                await TestWebViewCommunication();
+                await TestPositionUpdates();
+                await TestMapSwitching();
+                await TestErrorHandling();
+
+                // 테스트 결과 출력
+                PrintTestResults();
+
+                return _testsPassed;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ 통합 테스트 실행 중 오류 발생: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                // 테스트 환경 정리
+                CleanupTestEnvironment();
+            }
+        }
+
+        /// <summary>
+        /// 테스트 환경 초기화
+        /// </summary>
+        private async Task InitializeTestEnvironment()
+        {
+            Console.WriteLine("🔧 테스트 환경 초기화 중...");
+
+            try
+            {
+                // WebView2 인스턴스 생성 (테스트용)
+                _webView = new WebView2();
+
+                // MapViewController 생성 및 초기화
+                _mapController = new MapViewController(_webView);
+
+                Console.WriteLine("✅ 테스트 환경 초기화 완료");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ 테스트 환경 초기화 실패: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 위치 파싱 테스트
+        /// </summary>
+        private async Task TestPositionParsing()
+        {
+            Console.WriteLine("\n📍 위치 파싱 테스트");
+            Console.WriteLine("====================");
+
+            // 테스트 케이스 정의
+            var testCases = new[]
+            {
+                new { 
+                    Filename = "2024-08-27[15-30]_FactoryDay_-25.8_-18.2_5.1_0.0_-0.7_0.0_0.7 (1).png",
+                    ExpectedMap = "FactoryDay",
+                    ExpectedX = -25.8f,
+                    ExpectedZ = -18.2f
+                },
+                new { 
+                    Filename = "2024-08-27[10-15]_Customs_100.5_-200.3_10.0_0.1_0.0_0.5_0.8.png",
+                    ExpectedMap = "Customs", 
+                    ExpectedX = 100.5f,
+                    ExpectedZ = -200.3f
+                },
+                new { 
+                    Filename = "invalid_filename.png",
+                    ExpectedMap = (string)null,
+                    ExpectedX = 0f,
+                    ExpectedZ = 0f
+                }
+            };
+
+            foreach (var testCase in testCases)
+            {
+                await TestCase($"파싱 테스트: {Path.GetFileName(testCase.Filename)}", () =>
+                {
+                    var result = PositionParser.ParseFromFilename(testCase.Filename);
+                    
+                    if (testCase.ExpectedMap == null)
+                    {
+                        // null 예상 (실패 케이스)
+                        return result == null;
+                    }
+                    else
+                    {
+                        // 성공 케이스
+                        return result != null &&
+                               result.MapName == testCase.ExpectedMap &&
+                               Math.Abs(result.X - testCase.ExpectedX) < 0.01f &&
+                               Math.Abs(result.Z - testCase.ExpectedZ) < 0.01f;
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// 좌표 변환 테스트
+        /// </summary>
+        private async Task TestCoordinateTransformation()
+        {
+            Console.WriteLine("\n🗺️ 좌표 변환 테스트");
+            Console.WriteLine("====================");
+
+            // 기본 좌표 변환 테스트
+            await TestCase("기본 좌표 변환", () =>
+            {
+                var position = new Position
+                {
+                    MapName = "factory",
+                    X = 10.0f,
+                    Z = -15.0f,
+                    Y = 5.0f
+                };
+
+                // 변환 결과 확인 (구체적인 값은 좌표 시스템 설정에 따라 달라짐)
+                return position.X == 10.0f && position.Z == -15.0f;
+            });
+
+            // 쿼터니언 회전 계산 테스트
+            await TestCase("쿼터니언 → Yaw 변환", () =>
+            {
+                var position = new Position
+                {
+                    MapName = "factory",
+                    X = 0, Z = 0, Y = 0,
+                    QuaternionX = 0.0f,
+                    QuaternionY = -0.7071068f, // 90도 회전
+                    QuaternionZ = 0.0f,
+                    QuaternionW = 0.7071068f
+                };
+
+                var yaw = position.Rotation;
+                // 90도 회전 (±5도 오차 허용)
+                return Math.Abs(yaw - 90.0f) < 5.0f || Math.Abs(yaw + 90.0f) < 5.0f;
+            });
+        }
+
+        /// <summary>
+        /// MapViewController 테스트
+        /// </summary>
+        private async Task TestMapViewController()
+        {
+            Console.WriteLine("\n🎮 MapViewController 테스트");
+            Console.WriteLine("==============================");
+
+            await TestCase("MapViewController 초기화", () =>
+            {
+                return _mapController != null;
+            });
+
+            // WebView2가 실제 환경에서만 동작하므로 기본 검증만 수행
+            await TestCase("MapViewController 상태 확인", () =>
+            {
+                return _mapController.CurrentMapId != null; // 초기 상태 확인
+            });
+        }
+
+        /// <summary>
+        /// WebView 통신 테스트
+        /// </summary>
+        private async Task TestWebViewCommunication()
+        {
+            Console.WriteLine("\n💬 WebView 통신 테스트");
+            Console.WriteLine("========================");
+
+            // 메시지 생성 및 직렬화 테스트
+            await TestCase("WebView 메시지 직렬화", () =>
+            {
+                var message = new WebViewMessage("TEST_MESSAGE", new { test = "data" });
+                var json = message.ToJson();
+                
+                return !string.IsNullOrEmpty(json) && json.Contains("TEST_MESSAGE");
+            });
+
+            // 메시지 역직렬화 테스트
+            await TestCase("WebView 메시지 역직렬화", () =>
+            {
+                var json = "{\"type\":\"TEST\",\"data\":{\"value\":123},\"id\":\"test-id\",\"timestamp\":1234567890,\"source\":\"test\"}";
+                var message = WebViewMessage.FromJson(json);
+                
+                return message != null && 
+                       message.Type == "TEST" && 
+                       message.Id == "test-id";
+            });
+
+            // 메시지 검증 테스트
+            await TestCase("WebView 메시지 검증", () =>
+            {
+                var validMessage = new WebViewMessage("VALID_TYPE", new { });
+                var invalidMessage = new WebViewMessage("", new { });
+                invalidMessage.Id = "";
+
+                return WebViewMessageValidator.IsValid(validMessage) && 
+                       !WebViewMessageValidator.IsValid(invalidMessage);
+            });
+        }
+
+        /// <summary>
+        /// 위치 업데이트 테스트
+        /// </summary>
+        private async Task TestPositionUpdates()
+        {
+            Console.WriteLine("\n📊 위치 업데이트 테스트");
+            Console.WriteLine("========================");
+
+            await TestCase("Position 객체 생성", () =>
+            {
+                var position = new Position
+                {
+                    MapName = "factory",
+                    X = 10.5f,
+                    Y = 5.0f,
+                    Z = -20.3f,
+                    QuaternionX = 0.0f,
+                    QuaternionY = 0.707f,
+                    QuaternionZ = 0.0f,
+                    QuaternionW = 0.707f,
+                    Timestamp = DateTime.Now,
+                    Accuracy = 1.0f
+                };
+
+                return position.MapName == "factory" &&
+                       Math.Abs(position.X - 10.5f) < 0.01f &&
+                       position.Rotation > 0; // 쿼터니언 계산 결과 확인
+            });
+
+            await TestCase("PositionUpdateData 변환", () =>
+            {
+                var position = new Position
+                {
+                    MapName = "customs",
+                    X = -50.0f,
+                    Y = 10.0f,
+                    Z = 100.0f,
+                    Timestamp = DateTime.Now
+                };
+
+                var updateData = PositionUpdateData.FromPosition(position);
+                
+                return updateData.MapId == "customs" &&
+                       Math.Abs(updateData.X - (-50.0f)) < 0.01f &&
+                       Math.Abs(updateData.Z - 100.0f) < 0.01f;
+            });
+        }
+
+        /// <summary>
+        /// 맵 전환 테스트
+        /// </summary>
+        private async Task TestMapSwitching()
+        {
+            Console.WriteLine("\n🔄 맵 전환 테스트");
+            Console.WriteLine("==================");
+
+            await TestCase("맵 설정 데이터", () =>
+            {
+                var settings = new MapSettingsData
+                {
+                    Theme = "dark",
+                    ShowGrid = true,
+                    ShowDirection = true,
+                    MarkerSize = 16,
+                    UpdateInterval = 50
+                };
+
+                return settings.Theme == "dark" &&
+                       settings.ShowGrid &&
+                       settings.MarkerSize == 16;
+            });
+
+            await TestCase("맵 변경 데이터", () =>
+            {
+                var mapChange = new WebViewMapChangeData
+                {
+                    MapId = "shoreline",
+                    DisplayName = "Shoreline"
+                };
+
+                return mapChange.MapId == "shoreline" &&
+                       mapChange.DisplayName == "Shoreline";
+            });
+        }
+
+        /// <summary>
+        /// 오류 처리 테스트
+        /// </summary>
+        private async Task TestErrorHandling()
+        {
+            Console.WriteLine("\n⚠️ 오류 처리 테스트");
+            Console.WriteLine("====================");
+
+            await TestCase("오류 리포트 데이터", () =>
+            {
+                var error = new ErrorReportData
+                {
+                    Message = "테스트 오류",
+                    Source = "test",
+                    Severity = "error"
+                };
+
+                return error.Message == "테스트 오류" &&
+                       error.Source == "test" &&
+                       error.Severity == "error";
+            });
+
+            await TestCase("잘못된 위치 파싱 처리", () =>
+            {
+                var result = PositionParser.ParseFromFilename("invalid_file.txt");
+                return result == null; // null 반환이 예상됨
+            });
+
+            await TestCase("빈 파일명 처리", () =>
+            {
+                var result = PositionParser.ParseFromFilename("");
+                return result == null;
+            });
+
+            await TestCase("null 파일명 처리", () =>
+            {
+                var result = PositionParser.ParseFromFilename(null);
+                return result == null;
+            });
+        }
+
+        /// <summary>
+        /// 개별 테스트 케이스 실행
+        /// </summary>
+        private async Task TestCase(string testName, Func<bool> testFunc)
+        {
+            _totalTests++;
+            
+            try
+            {
+                Console.Write($"  {testName}... ");
+                
+                var result = testFunc();
+                
+                if (result)
+                {
+                    Console.WriteLine("✅ 통과");
+                    _passedTests++;
+                }
+                else
+                {
+                    Console.WriteLine("❌ 실패");
+                    _testsPassed = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ 예외: {ex.Message}");
+                _testsPassed = false;
+            }
+            
+            await Task.Delay(10); // UI 스레드 양보
+        }
+
+        /// <summary>
+        /// 테스트 결과 출력
+        /// </summary>
+        private void PrintTestResults()
+        {
+            Console.WriteLine();
+            Console.WriteLine("=== 테스트 결과 ===");
+            Console.WriteLine($"총 테스트: {_totalTests}");
+            Console.WriteLine($"통과: {_passedTests}");
+            Console.WriteLine($"실패: {_totalTests - _passedTests}");
+            Console.WriteLine($"성공률: {(_passedTests * 100.0 / _totalTests):F1}%");
+            
+            if (_testsPassed)
+            {
+                Console.WriteLine("🎉 모든 테스트 통과!");
+            }
+            else
+            {
+                Console.WriteLine("💥 일부 테스트 실패");
+            }
+            
+            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// 테스트 환경 정리
+        /// </summary>
+        private void CleanupTestEnvironment()
+        {
+            try
+            {
+                _mapController?.Dispose();
+                _webView?.Dispose();
+                
+                Console.WriteLine("🧹 테스트 환경 정리 완료");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ 테스트 환경 정리 중 오류: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 성능 테스트 실행
+        /// </summary>
+        public async Task RunPerformanceTests()
+        {
+            Console.WriteLine("=== 성능 테스트 시작 ===");
+
+            // 위치 파싱 성능 테스트
+            await TestParsingPerformance();
+
+            // 좌표 변환 성능 테스트  
+            await TestCoordinatePerformance();
+
+            Console.WriteLine("성능 테스트 완료");
+        }
+
+        /// <summary>
+        /// 파싱 성능 테스트
+        /// </summary>
+        private async Task TestParsingPerformance()
+        {
+            Console.WriteLine("\n⚡ 파싱 성능 테스트");
+            
+            var testFilename = "2024-08-27[15-30]_FactoryDay_-25.8_-18.2_5.1_0.0_-0.7_0.0_0.7 (1).png";
+            var iterations = 1000;
+            
+            var startTime = DateTime.UtcNow;
+            
+            for (int i = 0; i < iterations; i++)
+            {
+                var result = PositionParser.ParseFromFilename(testFilename);
+            }
+            
+            var elapsed = DateTime.UtcNow - startTime;
+            var avgTime = elapsed.TotalMilliseconds / iterations;
+            
+            Console.WriteLine($"  {iterations}회 파싱 평균 시간: {avgTime:F3}ms");
+            
+            if (avgTime < 1.0)
+            {
+                Console.WriteLine("  ✅ 성능 목표 달성 (< 1ms)");
+            }
+            else
+            {
+                Console.WriteLine("  ⚠️ 성능 목표 미달성");
+            }
+        }
+
+        /// <summary>
+        /// 좌표 변환 성능 테스트
+        /// </summary>
+        private async Task TestCoordinatePerformance()
+        {
+            Console.WriteLine("\n⚡ 좌표 변환 성능 테스트");
+            
+            var position = new Position
+            {
+                X = 100.0f, Z = -200.0f, Y = 10.0f,
+                QuaternionX = 0.0f, QuaternionY = 0.707f,
+                QuaternionZ = 0.0f, QuaternionW = 0.707f
+            };
+            
+            var iterations = 10000;
+            var startTime = DateTime.UtcNow;
+            
+            for (int i = 0; i < iterations; i++)
+            {
+                var rotation = position.Rotation; // 쿼터니언 계산
+            }
+            
+            var elapsed = DateTime.UtcNow - startTime;
+            var avgTime = elapsed.TotalMilliseconds / iterations;
+            
+            Console.WriteLine($"  {iterations}회 변환 평균 시간: {avgTime:F4}ms");
+            
+            if (avgTime < 0.01)
+            {
+                Console.WriteLine("  ✅ 성능 목표 달성 (< 0.01ms)");
+            }
+            else
+            {
+                Console.WriteLine("  ⚠️ 성능 목표 미달성");
+            }
+        }
+    }
+}

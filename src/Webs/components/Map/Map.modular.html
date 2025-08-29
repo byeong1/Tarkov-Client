@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타르코프 지도 (Tarkov Map) - Modular</title>
+    
+    <!-- Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    
+    <!-- 모듈화된 Map CSS -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/panels.css">
+    <link rel="stylesheet" href="css/controls.css">
+    <link rel="stylesheet" href="css/loading.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- 지도 메인 컨테이너 -->
+    <div id="tarkov-map-container" class="map-container">
+        <!-- 상단 컨트롤 바 -->
+        <div id="panel_top" class="panel-top">
+            <div class="top-controls">
+                <div class="level-selector">
+                    <select id="levelSelector">
+                        <option value="main">Ground Floor</option>
+                    </select>
+                </div>
+                <button class="top-btn" data-action="refresh" title="데이터 새로고침">
+                    🔄 Refresh
+                </button>
+                <button class="top-btn" data-action="toggle-panels" title="패널 토글">
+                    📋 Panels
+                </button>
+                <button class="top-btn" data-action="settings" title="설정">
+                    ⚙️ Settings
+                </button>
+                <button class="top-btn" data-action="fullscreen" title="전체화면">
+                    🔳 Fullscreen
+                </button>
+            </div>
+        </div>
+        
+        <!-- 지도 영역 -->
+        <div id="map" class="leaflet-map"></div>
+        
+        <!-- 왼쪽 패널 (마커 필터) -->
+        <div id="panel_left" class="panel-left">
+            <div class="panel-toggle" title="패널 토글">◀</div>
+            <div class="panel-header">
+                <h2 class="panel-title">Markers</h2>
+                <div class="panel-subtitle">스폰 포인트 및 마커</div>
+            </div>
+            <div class="panel-content" id="panel_left_content">
+                <!-- MarkerFilterPanel에서 동적으로 생성 -->
+                <div class="filter-controls">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="마커 검색..." />
+                        <div class="search-icon">🔍</div>
+                    </div>
+                </div>
+                
+                <div class="panel-section expanded">
+                    <div class="panel-section-header">
+                        <h3 class="panel-section-title">Spawn Points</h3>
+                        <div class="panel-section-toggle">▶</div>
+                    </div>
+                    <div class="panel-section-content">
+                        <div class="tree-container">
+                            <!-- 동적으로 마커 트리 생성 -->
+                            <div class="loading-skeleton">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-text"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <div class="panel-section-header">
+                        <h3 class="panel-section-title">Extract Points</h3>
+                        <div class="panel-section-toggle">▶</div>
+                    </div>
+                    <div class="panel-section-content">
+                        <div class="tree-container">
+                            <div class="loading-skeleton">
+                                <div class="skeleton skeleton-text"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="panel-stats">
+                    총 <span id="marker-count">--</span>개 마커
+                </div>
+            </div>
+        </div>
+        
+        <!-- 오른쪽 패널 (퀘스트 필터) -->
+        <div id="panel_right" class="panel-right">
+            <div class="panel-toggle" title="패널 토글">▶</div>
+            <div class="panel-header">
+                <h2 class="panel-title">Quests</h2>
+                <div class="panel-subtitle">퀘스트 목표 및 아이템</div>
+            </div>
+            <div class="panel-content" id="panel_right_content">
+                <!-- QuestFilterPanel에서 동적으로 생성 -->
+                <div class="filter-controls">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="퀘스트 검색..." />
+                        <div class="search-icon">🔍</div>
+                    </div>
+                </div>
+                
+                <div class="panel-section expanded">
+                    <div class="panel-section-header">
+                        <h3 class="panel-section-title">Active Quests</h3>
+                        <div class="panel-section-toggle">▶</div>
+                    </div>
+                    <div class="panel-section-content">
+                        <div class="tree-container">
+                            <div class="loading-skeleton">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-text"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <div class="panel-section-header">
+                        <h3 class="panel-section-title">Quest Items</h3>
+                        <div class="panel-section-toggle">▶</div>
+                    </div>
+                    <div class="panel-section-content">
+                        <div class="tree-container">
+                            <div class="loading-skeleton">
+                                <div class="skeleton skeleton-text"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="panel-stats">
+                    총 <span id="quest-count">--</span>개 퀘스트
+                </div>
+            </div>
+        </div>
+        
+        <!-- 좌표 표시 -->
+        <div class="coordinate-display">
+            Lat: --, Lng: --
+        </div>
+        
+        <!-- 줌 정보 -->
+        <div class="zoom-info">
+            Zoom: <span id="zoom-level">0</span>
+        </div>
+        
+        <!-- 지도 통계 -->
+        <div class="map-stats">
+            <div class="stat-item">
+                <div class="stat-icon marker-spawn"></div>
+                <span id="spawn-count">0</span>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon marker-extract"></div>
+                <span id="extract-count">0</span>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon marker-quest"></div>
+                <span id="quest-marker-count">0</span>
+            </div>
+        </div>
+        
+        <!-- 로딩 인디케이터 -->
+        <div id="loading-indicator" class="loading-indicator">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">지도 로딩 중...</div>
+        </div>
+        
+        <!-- 에러 메시지 -->
+        <div id="error-message" class="error-message">
+            <div class="error-icon">⚠️</div>
+            <div class="error-text"></div>
+            <button class="error-close">&times;</button>
+        </div>
+    </div>
+
+    <!-- Leaflet.js JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    
+    <!-- Leaflet Rotated Marker Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-rotatedmarker@0.2.0/leaflet.rotatedMarker.min.js"></script>
+    
+    <!-- 모듈화된 JavaScript 시스템 -->
+    <!-- 1. Core Event System -->
+    <script src="js/core/EventBus.js"></script>
+    
+    <!-- 2. Core Data & UI Managers -->
+    <script src="js/core/DataLoader.js"></script>
+    <script src="js/managers/UIManager.js"></script>
+    
+    <!-- 3. Legacy Systems (기존 호환성) -->
+    <script src="TarkovMapSystem.js"></script>
+    <script src="TarkovDevAPI.js"></script>
+    <script src="MarkerManager.js"></script>
+    <script src="MarkerFilterPanel.js"></script>
+    <script src="QuestFilterPanel.js"></script>
+    <script src="CoordinateSystem.js"></script>
+    
+    <!-- 4. Main Application (Refactored) -->
+    <script src="Map.refactored.js"></script>
+    
+    <script>
+        // C#에서 호출 가능한 전역 객체 초기화
+        window.tarkovMap = null;
+        window.tarkovMapApp = null;
+
+        // 디버그 모드 활성화 (개발 중)
+        if (window.eventBus) {
+            window.eventBus.setDebugMode(true);
+            console.log('🐛 EventBus 디버그 모드 활성화');
+        }
+
+        // DOM 로딩 완료 후 지도 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('🚀 모듈화된 지도 시스템 초기화 시작...');
+                
+                // EventBus 상태 확인
+                if (!window.eventBus) {
+                    throw new Error('EventBus가 로드되지 않았습니다');
+                }
+                
+                // 지도 애플리케이션 초기화 (리팩토링된 버전)
+                window.tarkovMapApp = new TarkovMapApplication('tarkov-map-container');
+                
+                // 초기화 완료 대기
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('지도 초기화 타임아웃 (10초)'));
+                    }, 10000);
+
+                    const checkInit = () => {
+                        if (window.tarkovMapApp?.isInitialized) {
+                            clearTimeout(timeout);
+                            resolve();
+                        } else {
+                            setTimeout(checkInit, 100);
+                        }
+                    };
+                    checkInit();
+                });
+
+                console.log('✅ 모듈화된 지도 시스템 초기화 완료');
+                
+                // EventBus 통계 출력
+                if (window.eventBus) {
+                    console.log('📊 EventBus 통계:', window.eventBus.getStats());
+                }
+                
+                // C#에 초기화 완료 알림
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'MAP_READY',
+                        version: 'modular',
+                        timestamp: Date.now(),
+                        modules: {
+                            eventBus: !!window.eventBus,
+                            dataLoader: !!window.tarkovMapApp?.dataLoader,
+                            uiManager: !!window.tarkovMapApp?.uiManager
+                        }
+                    }));
+                }
+
+                // 개발용 전역 접근
+                window.$debug = {
+                    app: window.tarkovMapApp,
+                    eventBus: window.eventBus,
+                    dataLoader: window.tarkovMapApp?.dataLoader,
+                    uiManager: window.tarkovMapApp?.uiManager,
+                    showEventHistory: () => window.eventBus.getHistory(),
+                    showStats: () => window.eventBus.getStats()
+                };
+
+            } catch (error) {
+                console.error('❌ 모듈화된 지도 초기화 실패:', error);
+                
+                // 오류 메시지 표시
+                showError('지도 초기화 실패: ' + error.message);
+                
+                // C#에 오류 알림
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'MAP_ERROR',
+                        version: 'modular',
+                        data: {
+                            message: error.message,
+                            source: 'modular_initialization',
+                            timestamp: Date.now()
+                        }
+                    }));
+                }
+            }
+        });
+
+        // 오류 메시지 표시 함수
+        const showError = (message) => {
+            const errorElement = document.getElementById('error-message');
+            const errorText = errorElement.querySelector('.error-text');
+            const loadingElement = document.getElementById('loading-indicator');
+            
+            if (loadingElement) loadingElement.style.display = 'none';
+            if (errorText) errorText.textContent = message;
+            if (errorElement) errorElement.style.display = 'flex';
+        };
+
+        // 에러 메시지 닫기
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('error-close')) {
+                const errorElement = document.getElementById('error-message');
+                if (errorElement) errorElement.style.display = 'none';
+            }
+        });
+
+        // C#에서 WebView2 메시지 수신 처리
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    
+                    if (window.tarkovMapApp && window.tarkovMapApp.isInitialized) {
+                        window.tarkovMapApp.handleWebViewMessage(message);
+                    } else {
+                        console.warn('⚠️ 지도 시스템이 아직 초기화되지 않음:', message);
+                        
+                        // 초기화 대기 중인 메시지는 EventBus에 임시 저장
+                        if (window.eventBus) {
+                            window.eventBus.emit('webview:message:pending', message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ WebView 메시지 처리 오류:', error, event.data);
+                }
+            });
+        }
+
+        // 개발용 단축키
+        if (process?.env?.NODE_ENV === 'development') {
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey) {
+                    switch (e.key) {
+                        case 'D':
+                            // EventBus 디버그 모드 토글
+                            const debugMode = !window.eventBus.debugMode;
+                            window.eventBus.setDebugMode(debugMode);
+                            console.log(`🐛 EventBus 디버그 모드: ${debugMode ? '활성화' : '비활성화'}`);
+                            e.preventDefault();
+                            break;
+                        case 'S':
+                            // EventBus 통계 출력
+                            console.table(window.eventBus.getStats());
+                            e.preventDefault();
+                            break;
+                        case 'H':
+                            // EventBus 이벤트 히스토리 출력
+                            console.table(window.eventBus.getHistory());
+                            e.preventDefault();
+                            break;
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

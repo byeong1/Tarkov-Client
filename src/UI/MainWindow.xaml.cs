@@ -34,6 +34,7 @@ public partial class MainWindow : Window
     private PipController _pipController;
     private System.Windows.Threading.DispatcherTimer _settingsSaveTimer;
     private TarkovClient.Utils.HotkeyManager _hotkeyManager;
+    private MapViewController _mapController;
 
     public MainWindow()
     {
@@ -591,6 +592,179 @@ public partial class MainWindow : Window
                 System.Windows.MessageBoxButton.OK,
                 System.Windows.MessageBoxImage.Error
             );
+        }
+    }
+
+    // 지도 버튼 클릭
+    private void Map_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // 이미 지도 탭이 있는지 확인
+            TabItem existingMapTab = null;
+            foreach (TabItem tab in TabContainer.Items)
+            {
+                if (tab.Header?.ToString() == "지도 (Map)")
+                {
+                    existingMapTab = tab;
+                    break;
+                }
+            }
+
+            if (existingMapTab != null)
+            {
+                // 기존 탭을 선택
+                TabContainer.SelectedItem = existingMapTab;
+            }
+            else
+            {
+                // 새 지도 탭 생성
+                _ = CreateNewMapTab();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"지도 탭 생성 중 오류: {ex.Message}");
+            System.Windows.MessageBox.Show(
+                $"지도 탭을 열 수 없습니다: {ex.Message}",
+                "오류",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error
+            );
+        }
+    }
+
+    // 새 지도 탭 생성
+    private async Task CreateNewMapTab()
+    {
+        try
+        {
+            // 새 TabItem 생성
+            var mapTab = new TabItem
+            {
+                Header = "지도 (Map)",
+                Background = new SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(42, 42, 42)
+                ),
+                Foreground = System.Windows.Media.Brushes.White,
+            };
+
+            // 새 WebView2 생성
+            var webView = new WebView2
+            {
+                DefaultBackgroundColor = System.Drawing.Color.Black, // 지도 페이지는 검은 배경
+            };
+
+            // 탭에 WebView2 추가
+            mapTab.Content = webView;
+
+            // TabControl에 새 탭 추가
+            TabContainer.Items.Add(mapTab);
+            _tabWebViews[mapTab] = webView;
+
+            // 새 탭 선택
+            TabContainer.SelectedItem = mapTab;
+
+            // WebView2 초기화 (지도용)
+            await InitializeMapWebView(webView, mapTab);
+
+            Console.WriteLine("지도 탭이 생성되었습니다.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"지도 탭 생성 실패: {ex.Message}");
+        }
+    }
+
+    // 지도 WebView2 초기화
+    private async Task InitializeMapWebView(WebView2 webView, TabItem tabItem)
+    {
+        try
+        {
+            // WebView2 데이터 폴더를 사용자 앱데이터 폴더로 설정
+            var userDataFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "TarkovClient",
+                "WebView2"
+            );
+
+            var webView2Environment = await CoreWebView2Environment.CreateAsync(
+                null,
+                userDataFolder
+            );
+            await webView.EnsureCoreWebView2Async(webView2Environment);
+
+            // MapViewController 생성 및 초기화
+            _mapController = new MapViewController(webView);
+            
+            // 이벤트 핸들러 등록
+            _mapController.PositionUpdated += OnMapPositionUpdated;
+            _mapController.MapChanged += OnMapChanged;
+            _mapController.ErrorOccurred += OnMapError;
+            _mapController.InitializationCompleted += OnMapInitializationCompleted;
+
+            // ScreenshotsWatcher 이벤트 연결
+            ScreenshotsWatcher.PositionDetected += OnPositionDetected;
+
+            // 지도 시스템 초기화
+            var success = await _mapController.InitializeAsync();
+            
+            if (success)
+            {
+                Console.WriteLine("지도 시스템 초기화 완료");
+            }
+            else
+            {
+                Console.WriteLine("지도 시스템 초기화 실패");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"지도 WebView 초기화 오류: {ex.Message}");
+        }
+    }
+
+    // 지도 이벤트 핸들러들
+    private void OnMapPositionUpdated(Position position)
+    {
+        Console.WriteLine($"지도 위치 업데이트: {position}");
+    }
+
+    private void OnMapChanged(string mapId)
+    {
+        Console.WriteLine($"지도 변경: {mapId}");
+    }
+
+    private void OnMapError(string error)
+    {
+        Console.WriteLine($"지도 오류: {error}");
+    }
+
+    private void OnMapInitializationCompleted()
+    {
+        Console.WriteLine("지도 초기화 완료");
+    }
+
+    // 위치 감지 이벤트 핸들러
+    private async void OnPositionDetected(Position position)
+    {
+        try
+        {
+            if (_mapController != null && _mapController.IsInitialized)
+            {
+                // 현재 맵과 다르면 맵 전환
+                if (_mapController.CurrentMapId != position.MapName)
+                {
+                    await _mapController.SwitchMapAsync(position.MapName);
+                }
+
+                // 위치 업데이트
+                await _mapController.UpdatePlayerPositionAsync(position);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"위치 업데이트 실패: {ex.Message}");
         }
     }
 
