@@ -37,6 +37,10 @@ namespace TarkovClient
         public double restoreThresholdWidth { get; set; } = 800; // 복원 임계 너비
         public double restoreThresholdHeight { get; set; } = 600; // 복원 임계 높이
 
+        // 파일 자동 정리 설정
+        public bool autoDeleteLogs { get; set; } = false; // 로그 폴더 자동 정리
+        public bool autoDeleteScreenshots { get; set; } = false; // 스크린샷 자동 정리
+
         public override string ToString()
         {
             return $"gameFolder: '{gameFolder}' \nscreenshotsFolder: '{screenshotsFolder}' \npipEnabled: {pipEnabled}";

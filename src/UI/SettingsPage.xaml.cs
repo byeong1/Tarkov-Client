@@ -75,6 +75,10 @@ namespace TarkovClient
                 // PiP 핫키 설정
                 PipHotkeyEnabledCheckBox.IsChecked = settings.pipHotkeyEnabled;
                 PipHotkeyButton.Content = settings.pipHotkeyKey;
+
+                // 파일 자동 정리 설정
+                AutoDeleteLogsCheckBox.IsChecked = settings.autoDeleteLogs;
+                AutoDeleteScreenshotsCheckBox.IsChecked = settings.autoDeleteScreenshots;
             }
             catch (Exception) { }
         }
@@ -257,6 +261,10 @@ namespace TarkovClient
                         }
                     }
                 }
+
+                // 파일 자동 정리 설정 저장
+                settings.autoDeleteLogs = AutoDeleteLogsCheckBox.IsChecked ?? false;
+                settings.autoDeleteScreenshots = AutoDeleteScreenshotsCheckBox.IsChecked ?? false;
 
                 // 설정 저장
                 Env.SetSettings(settings);
