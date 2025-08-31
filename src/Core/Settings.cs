@@ -64,6 +64,8 @@ namespace TarkovClient
                 enableAutoRestore = true,
                 restoreThresholdWidth = 800,
                 restoreThresholdHeight = 600,
+                autoDeleteLogs = false,
+                autoDeleteScreenshots = false,
             };
 
             Env.SetSettings(defaultSettings, true);
