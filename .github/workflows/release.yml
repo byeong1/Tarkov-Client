@@ -3,9 +3,7 @@ name: Release Build and Deploy
 on:
   push:
     tags:
-      - "v*.*.*" # v0.0.1, v1.2.3 등의 태그가 푸시될 때 실행
-    branches:
-      - main # main 브랜치에서만 실행
+      - "v*.*.*" # v0.0.1, v1.2.3 등의 태그가 푸시될 때만 실행
   workflow_dispatch: # 수동 실행도 가능
 
 permissions:
@@ -33,12 +31,11 @@ jobs:
             $version = $matches[1]
             echo "version=$version" >> $env:GITHUB_OUTPUT
             echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
+            echo "Extracted version: $version"
           } else {
-            $version = "0.1.0"
-            echo "version=$version" >> $env:GITHUB_OUTPUT  
-            echo "tag_name=v$version" >> $env:GITHUB_OUTPUT
+            Write-Error "This workflow should only run on tag pushes. Current ref: ${{ github.ref }}"
+            exit 1
           }
-          echo "Extracted version: $version"
 
       - name: Update project version
         shell: pwsh

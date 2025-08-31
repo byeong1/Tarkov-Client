@@ -15,6 +15,12 @@ namespace TarkovClient
         {
             try
             {
+                // 설정 확인 - 자동 삭제가 비활성화되어 있으면 종료
+                if (!Env.GetSettings().autoDeleteLogs)
+                {
+                    return;
+                }
+
                 if (!Directory.Exists(Env.LogsFolder))
                 {
                     return;
@@ -81,6 +87,12 @@ namespace TarkovClient
         {
             try
             {
+                // 설정 확인 - 자동 삭제가 비활성화되어 있으면 종료
+                if (!Env.GetSettings().autoDeleteScreenshots)
+                {
+                    return;
+                }
+
                 if (!Directory.Exists(Env.ScreenshotsFolder))
                 {
                     return;

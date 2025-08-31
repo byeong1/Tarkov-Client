@@ -44,14 +44,14 @@ public partial class App : Application
 
     private void StartApp(string[] args)
     {
+        CreateTrayIcon();
+        Settings.Load();  // 설정을 먼저 로드
+
         // 구 로그 폴더 정리 (최신 폴더 제외)
         GameSessionCleaner.CleanOldLogFolders();
 
         // 이전 세션의 스크린샷 파일 정리
         GameSessionCleaner.CleanScreenshotFiles();
-
-        CreateTrayIcon();
-        Settings.Load();
 
         Server.Start();
         Watcher.Start();

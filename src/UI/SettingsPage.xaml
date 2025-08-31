@@ -154,6 +154,61 @@
                 </Grid>
             </Border>
             
+            <!-- 프로그램 설정 섹션 -->
+            <Border Background="#FF1A1A1A" 
+                    CornerRadius="5" 
+                    Padding="15" 
+                    Margin="0,0,0,15">
+                <StackPanel>
+                    <TextBlock Text="프로그램 설정" 
+                               FontSize="18" 
+                               FontWeight="Bold" 
+                               Foreground="White" 
+                               Margin="0,0,0,10"/>
+                    
+                    <!-- 파일 자동 정리 설정 -->
+                    <TextBlock Text="파일 자동 정리" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Foreground="White" 
+                               Margin="0,10,0,10"/>
+                    
+                    <!-- 로그 폴더 자동 정리 -->
+                    <StackPanel Orientation="Vertical" Margin="20,5,0,10">
+                        <CheckBox x:Name="AutoDeleteLogsCheckBox"
+                                  Content="로그 폴더 자동 정리" 
+                                  Foreground="White" 
+                                  FontSize="14"
+                                  HorizontalAlignment="Left"/>
+                        <TextBlock Text="프로그램 시작 시 이전 로그 폴더를 자동으로 삭제합니다"
+                                   Foreground="#FF888888"
+                                   FontSize="11"
+                                   Margin="20,2,0,0"/>
+                        <TextBlock Text="Automatically delete old log folders on program start"
+                                   Foreground="#FF888888"
+                                   FontSize="11"
+                                   Margin="20,2,0,0"/>
+                    </StackPanel>
+                    
+                    <!-- 스크린샷 자동 정리 -->
+                    <StackPanel Orientation="Vertical" Margin="20,5,0,10">
+                        <CheckBox x:Name="AutoDeleteScreenshotsCheckBox"
+                                  Content="스크린샷 자동 정리" 
+                                  Foreground="White" 
+                                  FontSize="14"
+                                  HorizontalAlignment="Left"/>
+                        <TextBlock Text="레이드 종료 시 스크린샷을 자동으로 삭제합니다"
+                                   Foreground="#FF888888"
+                                   FontSize="11"
+                                   Margin="20,2,0,0"/>
+                        <TextBlock Text="Automatically delete screenshots on raid end"
+                                   Foreground="#FF888888"
+                                   FontSize="11"
+                                   Margin="20,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            
             <!-- 저장 버튼 -->
             <StackPanel Orientation="Horizontal" 
                         HorizontalAlignment="Right" 
